@@ -16,6 +16,7 @@ class UserProfile(models.Model):
 
 	# The additional attributes we wish to include.
 	credit = models.IntegerField()
+	upgradeStatus = models.BooleanField()
 	colour = models.TextField()
 	
 	# Override the __unicode__() method to return out something meaningful!

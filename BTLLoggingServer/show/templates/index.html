@@ -1,9 +1,29 @@
-{% if latest_show_list %}
-    <ul>
-    {% for show in latest_show_list %}
-        <li><a href="/show/{{ show.id }}/">{{ show.name }}</a></li>
-    {% endfor %}
-    </ul>
-{% else %}
-    <p>No shows are available.</p>
-{% endif %}
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Better than life</title>
+        <script type='text/javascript' src='http://code.jquery.com/jquery-2.1.0.min.js'></script>
+        <!--script type='text/javascript' >
+        	$(function(){
+        		$("#upgradebutton").click(function(){
+        			$.post( "http://127.0.0.1:8000/show/upgrade/", function( data ) {
+ 						 console.log( data );
+					});
+        		})
+        	})
+        </script-->
+    </head>
+
+    <body>
+        <h1>Better Than Life</h1>
+        <h3>{{ user.username }} credit {{ user.userprofile.credit }}!</h3>
+        {% if user.userprofile.upgradeStatus %}
+        <h3>Premium</h3>
+        {% endif %}
+        <!-- button id="upgradebutton" onclick="location.href='http://127.0.0.1:8000/show/upgrade/'" type="button">Upgrade</button -->
+        <form  method="post" action="/show/upgrade/">
+            {% csrf_token %}
+            <input type="submit" value="Upgrade">
+        </form>
+    </body>
+</html>

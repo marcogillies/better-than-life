@@ -30,6 +30,7 @@ def user(request, username):
 			profile.user = request.user
 
 			profile.credit = 5
+			profile.upgradeStatus = False
 
 			# Now we save the UserProfile model instance.
 			profile.save()
@@ -81,4 +82,23 @@ def user_login(request):
 		# No context variables to pass to the template system, hence the
 		# blank dictionary object...
 		return render(request, 'users/login.html', context)
+
+def user_upgrade(request):
+	# Like before, obtain the context for the user's request.
+	context = RequestContext(request)
+	if request.method == 'POST':
+		try:
+			if request.user.userprofile.credit > 0:
+				request.user.userprofile.credit -= 1
+				request.user.userprofile.upgradeStatus = True
+				request.user.userprofile.save()
+			return HttpResponseRedirect('/show/')
+			#return HttpResponseRedirect('/users/'+request.user.username)
+		except Exception, e:
+			profile_form = UserProfileForm()
+			context["profile_form"] = profile_form
+			return HttpResponseRedirect('/users/'+request.user.username)
+	else:
+		return HttpResponse("can't GET an upgrade")
+
 
