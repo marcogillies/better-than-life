@@ -1,0 +1,9 @@
+{% if latest_show_list %}
+    <ul>
+    {% for show in latest_show_list %}
+        <li><a href="/show/{{ show.id }}/">{{ show.name }}</a></li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>No shows are available.</p>
+{% endif %}
