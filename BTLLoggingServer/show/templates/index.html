@@ -3,27 +3,38 @@
     <head>
         <title>Better than life</title>
         <script type='text/javascript' src='http://code.jquery.com/jquery-2.1.0.min.js'></script>
-        <!--script type='text/javascript' >
+        <script type='text/javascript' >
         	$(function(){
+                {% if not user.userprofile.upgradeStatus %} 
+                $("#premium").hide()
+                {% endif %}
         		$("#upgradebutton").click(function(){
+                    console.log("upgrade")
         			$.post( "http://127.0.0.1:8000/show/upgrade/", function( data ) {
  						 console.log( data );
+                         data = data.split(":")
+                         $("#creditview").html("{{ user.username }} credit "+data[0])
+                         if(data[1] == "1"){
+                            $("#premium").show()
+                        }else {
+                            $("#premium").hide()
+                        }
 					});
         		})
         	})
-        </script-->
+        </script>
     </head>
 
     <body>
         <h1>Better Than Life</h1>
-        <h3>{{ user.username }} credit {{ user.userprofile.credit }}!</h3>
-        {% if user.userprofile.upgradeStatus %}
-        <h3>Premium</h3>
-        {% endif %}
-        <!-- button id="upgradebutton" onclick="location.href='http://127.0.0.1:8000/show/upgrade/'" type="button">Upgrade</button -->
-        <form  method="post" action="/show/upgrade/">
+        <h3 id = "creditview">{{ user.username }} credit {{ user.userprofile.credit }}</h3>
+        
+        <h3 id="premium">Premium</h3>
+        
+        <button id="upgradebutton"  type="button">Upgrade1</button>
+        <!--form  method="post" action="/show/upgrade/">
             {% csrf_token %}
             <input type="submit" value="Upgrade">
-        </form>
+        </form-->
     </body>
 </html>

@@ -2,6 +2,7 @@ from django.shortcuts import render
 from django.contrib.auth import authenticate, login
 from django.http import HttpResponseRedirect, HttpResponse
 from django.template import RequestContext, loader
+from django.views.decorators.csrf import csrf_exempt
 
 from show.models import *
 from show.forms import *
@@ -83,21 +84,24 @@ def user_login(request):
 		# blank dictionary object...
 		return render(request, 'users/login.html', context)
 
+@csrf_exempt
 def user_upgrade(request):
 	# Like before, obtain the context for the user's request.
 	context = RequestContext(request)
 	if request.method == 'POST':
 		try:
-			if request.user.userprofile.credit > 0:
+			if not request.user.userprofile.upgradeStatus and request.user.userprofile.credit > 0:
 				request.user.userprofile.credit -= 1
 				request.user.userprofile.upgradeStatus = True
 				request.user.userprofile.save()
-			return HttpResponseRedirect('/show/')
+			return HttpResponse('%i:%i' % (request.user.userprofile.credit,request.user.userprofile.upgradeStatus))
+			#return HttpResponseRedirect('/show/')
 			#return HttpResponseRedirect('/users/'+request.user.username)
 		except Exception, e:
 			profile_form = UserProfileForm()
 			context["profile_form"] = profile_form
-			return HttpResponseRedirect('/users/'+request.user.username)
+			return HttpResponse('%i:%i' % (request.user.userprofile.credit,request.user.userprofile.upgradeStatus))
+			#return HttpResponse(request.user.userprofile.credit)
 	else:
 		return HttpResponse("can't GET an upgrade")
 
