@@ -10,6 +10,7 @@ class Show(models.Model):
 	def __unicode__(self):  # Python 3: def __str__(self):
 		return self.name
 
+
 class UserProfile(models.Model):
 	# This line is required. Links UserProfile to a User model instance.
 	user = models.OneToOneField(User)
@@ -18,8 +19,15 @@ class UserProfile(models.Model):
 	credit = models.IntegerField()
 	upgradeStatus = models.BooleanField()
 	colour = models.TextField()
+	mouseX = models.FloatField()
+	mouseY = models.FloatField()
 	
 	# Override the __unicode__() method to return out something meaningful!
 	def __unicode__(self):
 		return self.user.username
+	
+	class Meta:
+		permissions = (
+			("view_secret", "Can see secret things"),
+		)
 

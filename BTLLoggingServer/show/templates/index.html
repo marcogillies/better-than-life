@@ -7,7 +7,24 @@
         	$(function(){
                 {% if not user.userprofile.upgradeStatus %} 
                 $("#premium").hide()
+                $("#mousebox").hide()
+                $("#mousebox").mousemove(null);
+                {% else %}
+                    $("#mousebox").mousemove(function(event){
+                                $("#mousepos").html(event.clientX/$("#mousebox").width() + " " + event.clientY/$("#mousebox").height());
+                                var x = event.clientX/$("#mousebox").width();
+                                var y = event.clientY/$("#mousebox").height();
+                                if(Math.abs(x - oldXPos) > 0.2 || Math.abs(y - oldYPos) > 0.2){
+                                    oldXPos = x;
+                                    oldYPos = y;
+                                    $.post( "http://127.0.0.1:8000/show/mouseMove/"+x+"/"+y+"/",function(data){
+                                    //$("#error").html(data);
+                                    });
+                                }
+                        });
                 {% endif %}
+                oldXPos = 0.0;
+                oldYPos = 0.0;
         		$("#upgradebutton").click(function(){
                     console.log("upgrade")
         			$.post( "http://127.0.0.1:8000/show/upgrade/", function( data ) {
@@ -16,8 +33,23 @@
                          $("#creditview").html("{{ user.username }} credit "+data[0])
                          if(data[1] == "1"){
                             $("#premium").show()
-                        }else {
+                            $("#mousebox").show()
+                            $("#mousebox").mousemove(function(event){
+                                $("#mousepos").html(event.clientX/$("#mousebox").width() + " " + event.clientY/$("#mousebox").height());
+                                var x = event.clientX/$("#mousebox").width();
+                                var y = event.clientY/$("#mousebox").height();
+                                if(Math.abs(x - oldXPos) > 0.2 || Math.abs(y - oldYPos) > 0.2){
+                                    oldXPos = x;
+                                    oldYPos = y;
+                                    $.post( "http://127.0.0.1:8000/show/mouseMove/"+x+"/"+y+"/",function(data){
+                                    //$("#error").html(data);
+                                    });
+                                }
+                            });
+                         }else {
                             $("#premium").hide()
+                            $("#mousebox").hide()
+                            $("#mousebox").mousemove(null);
                         }
 					});
         		})
@@ -28,7 +60,13 @@
     <body>
         <h1>Better Than Life</h1>
         <h3 id = "creditview">{{ user.username }} credit {{ user.userprofile.credit }}</h3>
-        
+
+        <div id="error"/>
+
+        <div id="mousebox" style="width:300px;height:300px;border:1px solid blue">
+        </div>
+        <div id="mousepos"/>
+
         <h3 id="premium">Premium</h3>
         
         <button id="upgradebutton"  type="button">Upgrade1</button>

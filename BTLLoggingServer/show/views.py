@@ -1,5 +1,7 @@
 from django.shortcuts import render
 from django.contrib.auth import authenticate, login
+from django.contrib.auth.models import Permission, Group
+from django.contrib.contenttypes.models import ContentType
 from django.http import HttpResponseRedirect, HttpResponse
 from django.template import RequestContext, loader
 from django.views.decorators.csrf import csrf_exempt
@@ -32,6 +34,8 @@ def user(request, username):
 
 			profile.credit = 5
 			profile.upgradeStatus = False
+			profile.mouseX = 0.0
+			profile.mouseY = 0.0
 
 			# Now we save the UserProfile model instance.
 			profile.save()
@@ -88,21 +92,70 @@ def user_login(request):
 def user_upgrade(request):
 	# Like before, obtain the context for the user's request.
 	context = RequestContext(request)
+	#if request.method == 'POST':
+		#try:
+	if not request.user.has_perm("show.view_secret") and request.user.userprofile.credit > 0:
+		request.user.userprofile.credit -= 1
+		request.user.userprofile.upgradeStatus = True
+		#content_type = ContentType.objects.get_for_model(UserProfile)
+		#permission = Permission.objects.get(content_type=content_type, codename='view_secret')
+		try:
+			group = Group.objects.get(name='theholy')
+			request.user.groups.add(group)
+		except Group.DoesNotExist:
+			# group should exist, but this is just for safety's sake, it case the improbable should happen
+			pass
+		 
+		#request.user.user_permissions.add(permission)
+		request.user.userprofile.save()
+		request.user.save()
+		#return HttpResponse(request.user.has_perm("view_secret"))
+		#return HttpResponse("permissions "+str([str(x) for x in request.user.user_permissions.all()])+ " "
+		#  +str([str(x) for x in request.user.groups.all()])+ " " + str(request.user.has_perm("show.view_secret")))
+		return HttpResponse('%i:%i' % (request.user.userprofile.credit,request.user.has_perm("show.view_secret")))
+	else:
+		#return HttpResponse(request.user.has_perm("view_secret"))
+		return HttpResponse('%i:%i' % (request.user.userprofile.credit,request.user.has_perm("show.view_secret")))
+			#return HttpResponseRedirect('/show/')
+			#return HttpResponseRedirect('/users/'+request.user.username)
+		#except Exception, e:
+		#	profile_form = UserProfileForm()
+		#	context["profile_form"] = profile_form
+		#	return HttpResponse('%i:%i' % (request.user.userprofile.credit,request.user.has_perm("view_secret")))
+		#	#return HttpResponse(request.user.userprofile.credit)
+	#else:
+	#	return HttpResponse("can't GET an upgrade")
+
+@csrf_exempt
+def mouseMove(request, xpos, ypos):
+	context = RequestContext(request)
 	if request.method == 'POST':
 		try:
-			if not request.user.userprofile.upgradeStatus and request.user.userprofile.credit > 0:
-				request.user.userprofile.credit -= 1
-				request.user.userprofile.upgradeStatus = True
+			if request.user.has_perm("show.view_secret"):
+				request.user.userprofile.mouseX = xpos
+				request.user.userprofile.mouseY = ypos
 				request.user.userprofile.save()
-			return HttpResponse('%i:%i' % (request.user.userprofile.credit,request.user.userprofile.upgradeStatus))
+				request.user.save()
+			return HttpResponse('')
 			#return HttpResponseRedirect('/show/')
 			#return HttpResponseRedirect('/users/'+request.user.username)
 		except Exception, e:
 			profile_form = UserProfileForm()
 			context["profile_form"] = profile_form
-			return HttpResponse('%i:%i' % (request.user.userprofile.credit,request.user.userprofile.upgradeStatus))
+			return HttpResponseRedirect('/users/'+user.username)
 			#return HttpResponse(request.user.userprofile.credit)
-	else:
-		return HttpResponse("can't GET an upgrade")
+	return HttpResponse('')
 
-
+@csrf_exempt
+def averageMouse(request):
+	x = 0.0
+	y = 0.0
+	count = 0
+	for profile in UserProfile.objects.all():
+		x += profile.mouseX
+		y += profile.mouseY
+		count += 1
+	if count > 0:
+		x = x/count
+		y = y/count
+	return HttpResponse(str(x) + ":" + str(y))
