@@ -21,6 +21,8 @@ class UserProfile(models.Model):
 	colour = models.TextField()
 	mouseX = models.FloatField()
 	mouseY = models.FloatField()
+
+	#log = models.TextField()
 	
 	# Override the __unicode__() method to return out something meaningful!
 	def __unicode__(self):
@@ -30,4 +32,13 @@ class UserProfile(models.Model):
 		permissions = (
 			("view_secret", "Can see secret things"),
 		)
+
+class LogItem(models.Model):
+	user = models.ForeignKey(User)
+
+	category = models.TextField()
+	content = models.TextField()
+
+	def __unicode__(self):
+		return self.category + ":" + self.content
 

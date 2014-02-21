@@ -52,7 +52,13 @@
                             $("#mousebox").mousemove(null);
                         }
 					});
-        		})
+        		});
+                $("#logbutton").click(function(){
+                    console.log("log")
+                    $.post( "http://127.0.0.1:8000/show/log/", "CHAT\nhello there", function( data ) {
+                         console.log( data );
+                         });
+                })
         	})
         </script>
     </head>
@@ -63,13 +69,15 @@
 
         <div id="error"/>
 
+        <h3 id="premium">Premium</h3>
+        
+        <button id="upgradebutton"  type="button">Upgrade1</button>
+        <button id="logbutton" type = "button">Log</button>
+
         <div id="mousebox" style="width:300px;height:300px;border:1px solid blue">
         </div>
         <div id="mousepos"/>
 
-        <h3 id="premium">Premium</h3>
-        
-        <button id="upgradebutton"  type="button">Upgrade1</button>
         <!--form  method="post" action="/show/upgrade/">
             {% csrf_token %}
             <input type="submit" value="Upgrade">

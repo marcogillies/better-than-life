@@ -33,7 +33,10 @@ def user(request, username):
 			profile.user = request.user
 
 			profile.credit = 5
-			profile.upgradeStatus = False
+			if request.user.has_perm("show.view_secret"):
+				profile.upgradeStatus = True
+			else:
+				profile.upgradeStatus = False
 			profile.mouseX = 0.0
 			profile.mouseY = 0.0
 
@@ -41,7 +44,8 @@ def user(request, username):
 			profile.save()
 	try:
 		request.user.userprofile
-		return render(request, 'users/user_index.html', context)
+		#return render(request, 'users/user_index.html', context)
+		return HttpResponseRedirect('/show/')
 	except Exception, e:
 		profile_form = UserProfileForm()
 		context["profile_form"] = profile_form
@@ -159,3 +163,14 @@ def averageMouse(request):
 		x = x/count
 		y = y/count
 	return HttpResponse(str(x) + ":" + str(y))
+
+@csrf_exempt
+def log(request):
+	if request.method == 'POST':
+		category = request.readline()
+		content = ""
+		for line in request.readlines():
+			content = content + line
+		request.user.logitem_set.create(category = category, content = content)
+		request.user.save()
+	return HttpResponse("")
