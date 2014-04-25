@@ -30,9 +30,12 @@ class UserProfile(models.Model):
 	
 	class Meta:
 		permissions = (
-			("view_secret", "Can see secret things"),
+			("secret", "Can see secret places"),
 			("select_stream", "Can select different streams"),
 			("chat", "Can contribute to the chats"),
+			("group_red", "Part of the red group"),
+			("group_green", "Part of the green group"),
+			("group_blue", "Part of the blue group"),
 		)
 
 class LogItem(models.Model):

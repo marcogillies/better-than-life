@@ -24,6 +24,21 @@ function spendCredit(pItem) {
 	}
 }
 
+function mouseMove(event){
+        //$("#mousepos").html(event.clientX/$("#mousebox").width() + " " + event.clientY/$("#mousebox").height());
+        console.log(event.clientX/$("#mousebox").width() + " " + event.clientY/$("#mousebox").height());
+        var x = event.clientX/$("#videoSwapper").width();
+        var y = event.clientY/$("#videoSwapper").height();
+        if(Math.abs(x - oldXPos) > 0.2 || Math.abs(y - oldYPos) > 0.2){
+            oldXPos = x;
+            oldYPos = y;
+            $.post( "http://127.0.0.1:8000/show/mouseMove/"+x+"/"+y+"/",function(data){
+            //$("#error").html(data);
+            	console.log(data);
+            });
+        }
+}
+
 function disableFeature(feature) {
 	console.log("disable" + feature);
 	$("#" + feature).attr("disabled","disabled");
