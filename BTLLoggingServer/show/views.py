@@ -17,6 +17,8 @@ import json
 
 @login_required(login_url='/show/login/')
 def index(request):
+	if not hasattr(request.user, 'userprofile') :
+		return HttpResponseRedirect('/users/'+user.username)
 	latest_show_list = Show.objects.order_by('-date')[:5]
 	template = loader.get_template('index.html')
 	context = RequestContext(request, {
