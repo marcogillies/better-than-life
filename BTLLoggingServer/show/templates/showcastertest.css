@@ -1,0 +1,43 @@
+.header {
+	background-color:black;
+	height:50px;
+}
+
+.footer {
+	background-color:black;
+	height:50px;
+}
+
+.changeVidButton {
+	width:100%;
+}
+
+.bottom-margin {
+	margin-bottom: 10px;
+}
+
+.top-margin {
+	margin-top: 10px;
+}
+
+#changeVidCamPersonal {
+	
+}
+
+
+.iFrameWrapper {
+  position: relative;
+}
+
+.iFrameDisabler {
+  width: 300px;
+  height: 403px;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  z-index: 1000;
+  cursor: default;
+  background-image: url('test.png');
+  opacity:0.5;
+  filter:alpha(opacity=50); /* For IE8 and earlier */
+}

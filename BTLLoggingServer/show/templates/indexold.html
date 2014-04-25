@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Better than life</title>
+        <script type='text/javascript' src='http://code.jquery.com/jquery-2.1.0.min.js'></script>
+        <script type='text/javascript' >
+        	$(function(){
+                {% if not user.userprofile.upgradeStatus %} 
+                $("#premium").hide()
+                $("#mousebox").hide()
+                $("#mousebox").mousemove(null);
+                {% else %}
+                    $("#mousebox").mousemove(function(event){
+                                $("#mousepos").html(event.clientX/$("#mousebox").width() + " " + event.clientY/$("#mousebox").height());
+                                var x = event.clientX/$("#mousebox").width();
+                                var y = event.clientY/$("#mousebox").height();
+                                if(Math.abs(x - oldXPos) > 0.2 || Math.abs(y - oldYPos) > 0.2){
+                                    oldXPos = x;
+                                    oldYPos = y;
+                                    $.post( "http://127.0.0.1:8000/show/mouseMove/"+x+"/"+y+"/",function(data){
+                                    //$("#error").html(data);
+                                    });
+                                }
+                        });
+                {% endif %}
+                oldXPos = 0.0;
+                oldYPos = 0.0;
+        		$("#upgradebutton").click(function(){
+                    console.log("upgrade")
+        			$.post( "http://127.0.0.1:8000/show/upgrade/", function( data ) {
+ 						 console.log( data );
+                         data = data.split(":")
+                         $("#creditview").html("{{ user.username }} credit "+data[0])
+                         if(data[1] == "1"){
+                            $("#premium").show()
+                            $("#mousebox").show()
+                            $("#mousebox").mousemove(function(event){
+                                $("#mousepos").html(event.clientX/$("#mousebox").width() + " " + event.clientY/$("#mousebox").height());
+                                var x = event.clientX/$("#mousebox").width();
+                                var y = event.clientY/$("#mousebox").height();
+                                if(Math.abs(x - oldXPos) > 0.2 || Math.abs(y - oldYPos) > 0.2){
+                                    oldXPos = x;
+                                    oldYPos = y;
+                                    $.post( "http://127.0.0.1:8000/show/mouseMove/"+x+"/"+y+"/",function(data){
+                                    //$("#error").html(data);
+                                    });
+                                }
+                            });
+                         }else {
+                            $("#premium").hide()
+                            $("#mousebox").hide()
+                            $("#mousebox").mousemove(null);
+                        }
+					});
+        		});
+                $("#logbutton").click(function(){
+                    console.log("log")
+                    $.post( "http://127.0.0.1:8000/show/log/", "CHAT\nhello there", function( data ) {
+                         console.log( data );
+                         });
+                })
+        	})
+        </script>
+    </head>
+
+    <body>
+        <h1>Better Than Life</h1>
+        <h3 id = "creditview">{{ user.username }} credit {{ user.userprofile.credit }} {{ perms }}</h3>
+
+        <div id="error"/>
+
+        <h3 id="premium">Premium</h3>
+        
+        <button id="upgradebutton"  type="button">Upgrade1</button>
+        <button id="logbutton" type = "button">Log</button>
+
+        <div id="mousebox" style="width:300px;height:300px;border:1px solid blue">
+        </div>
+        <div id="mousepos"/>
+
+        <!--form  method="post" action="/show/upgrade/">
+            {% csrf_token %}
+            <input type="submit" value="Upgrade">
+        </form-->
+    </body>
+</html>
