@@ -8,38 +8,130 @@ var cam6 = 135970;
 var chat1 = 135965;
 var chat2 = 135970;
 
+var userVariables = {
+	name : "",
+	credit : "",
+	chat_permission : "false",
+	streams_permission : "false",
+	currentVid : cam1
+}
+
+initializeUserVariables();
+
+function initializeUserVariables() {
+	$.post( "http://127.0.0.1:8000/show/upgrade/", function( data ) {
+		editUserVariables(data);
+	});
+} 
+
+function editUserVariables(variablesJson) {
+	/*
+	console.log("json");
+	console.log(variablesJson.name);
+	console.log(variablesJson.credit);
+	console.log(variablesJson.chat_permission);
+	console.log(variablesJson.streams_permission);
+
+	console.log("user permission pre");
+	console.log(userVariables.name);
+	console.log(userVariables.credit);
+	console.log(userVariables.chat_permission);
+	console.log(userVariables.streams_permission);
+*/
+	if (userVariables.name != variablesJson.name) {
+		userVariables.name = variablesJson.name;
+		changeFeature('x-userName', variablesJson.name);
+	}
+	if (userVariables.credit != variablesJson.credit) {
+		userVariables.credit = variablesJson.credit;
+		changeFeature("x-userCredit", variablesJson.credit);
+	}
+	if (userVariables.chat_permission != variablesJson.chat_permission) {
+		userVariables.chat_permission = variablesJson.chat_permission;
+		if (variablesJson.chat_permission == true) {
+			enableChat();
+		} else if (variablesJson == false) {
+			//disableChat();
+		} else {
+			//log error
+		}
+	}
+	if (userVariables.streams_permission != variablesJson.streams_permission) {
+		if (variablesJson.chat_permission == true) {
+			enableAlignment();
+		} else if (variablesJson == false) {
+			//disableAlignment();
+		} else {
+			//log error
+		}
+	}
+/*
+	console.log("user permission post");
+	console.log(userVariables.name);
+	console.log(userVariables.credit);
+	console.log(userVariables.chat_permission);
+	console.log(userVariables.streams_permission);*/
+}
+
 setInterval(function(){
-	refreshPageVariables();
+	//get json response
+	$.post( "http://127.0.0.1:8000/show/upgrade/", function( data ) {
+		console.log("interval");
+		editUserVariables(data);
+	});
 },3000);
 
 function spendCredit(pItem) {
 	console.log("spendCredit on " + pItem);
 	if (pItem == "alignment") {
-		$.post( "http://127.0.0.1:8000/show/upgrade/", function( data ) {
+		$.post( "http://127.0.0.1:8000/show/upgrade/view_secret/", function( data ) {
 			console.log( data );
          	data = data.split(":");
          	$("#creditview").html("user.username credit "+data[0]);
          	if(data[1] == "1"){
-				enableFeature("changeVidCamAlignment");
-				enableFeature("changeChatAlignment");
-				$("#buyAlignment").attr("disabled", "disabled");
+         		enableAlignment();
+				
 			};
 		});
 	} else if (pItem == "chat") {
-		$.post( "http://127.0.0.1:8000/show/upgrade/", function( data ) {
+		$.post( "http://127.0.0.1:8000/show/upgrade/chat/", function( data ) {
 			console.log( data );
          	data = data.split(":");
          	$("#creditview").html("user.username credit "+data[0]);
          	if(data[1] == "1"){
-				hideFeature("iFrameDisabler");
-				$("#buyChat").attr("disabled", "disabled");
+         		enableChat();
 			};
 		});
 	}
 }
 
-function refreshPageVariables() {
-	console.log("pingDb")
+function enableAlignment() {
+	enableFeature("changeVidCamAlignment");
+	enableFeature("changeChatAlignment");
+	$("#buyAlignment").attr("disabled", "disabled");
+	$("#followTommy").attr("disabled", "disabled");
+}
+
+function enableChat() {
+	hideFeature("iFrameDisabler");
+	$("#buyChat").attr("disabled", "disabled");
+}
+
+function disableAlignment() {
+	disableFeature("changeVidCamAlignment");
+	disableFeature("changeChatAlignment");
+	$("#buyAlignment").removeAttr("disabled");
+	$("#followTommy").removeAttr("disabled");
+}
+
+function disableChat() {
+	showFeature("iFrameDisabler");
+	$("#buyChat").removeAttr("disabled");
+}
+
+function changeFeature(feature, variable) {
+	console.log("change " + feature + " to " + variable);
+	$("#" + feature).html(variable);
 }
 
 function disableFeature(feature) {
