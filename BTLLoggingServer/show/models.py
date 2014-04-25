@@ -31,6 +31,8 @@ class UserProfile(models.Model):
 	class Meta:
 		permissions = (
 			("view_secret", "Can see secret things"),
+			("select_stream", "Can select different streams"),
+			("chat", "Can contribute to the chats"),
 		)
 
 class LogItem(models.Model):
