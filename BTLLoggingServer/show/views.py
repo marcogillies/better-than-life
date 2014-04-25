@@ -5,12 +5,14 @@ from django.contrib.contenttypes.models import ContentType
 from django.http import HttpResponseRedirect, HttpResponse
 from django.template import RequestContext, loader
 from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth.decorators import login_required
 
 from show.models import *
 from show.forms import *
 
 # Create your views here.
 
+@login_required(login_url='/show/login/')
 def index(request):
 	latest_show_list = Show.objects.order_by('-date')[:5]
 	template = loader.get_template('index.html')
@@ -19,6 +21,7 @@ def index(request):
 	})
 	return HttpResponse(template.render(context))
 
+@login_required(login_url='/show/login/')
 def user(request, username):
 	context = RequestContext(request)
 	context["username"] = username
