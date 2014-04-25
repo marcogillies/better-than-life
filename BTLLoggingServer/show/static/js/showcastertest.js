@@ -102,7 +102,7 @@ function editUserVariables(variablesJson) {
 		userVariables.chat_permission = variablesJson.chat_permission;
 		if (variablesJson.chat_permission == true) {
 			enableChat();
-		} else if (variablesJson == false) {
+		} else if (variablesJson.chat_permission == false) {
 			disableChat();
 		} else {
 			//log error
@@ -200,8 +200,10 @@ function disableAlignment() {
 
 function disableChat() {
 	console.log("disableChat");
-	showFeature("iFrameDisabler");
-	enableFeature("buyChat");
+	showFeature(chatDisabler);
+	enableFeature(buyChat);
+	//showFeature("iFrameDisabler");
+	//enableFeature("buyChat");
 }
 
 function changeFeature(feature, variable) {
