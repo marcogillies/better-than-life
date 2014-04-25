@@ -11,7 +11,14 @@ setInterval(function(){
 
 function spendCredit(pItem) {
 	if (pItem = "alignment") {
-		enableFeature("changeVidCamAlignment");
+		$.post( "http://127.0.0.1:8000/show/upgrade/", function( data ) {
+			console.log( data );
+         	data = data.split(":");
+         	$("#creditview").html("user.username credit "+data[0]);
+         	if(data[1] == "1"){
+				enableFeature("changeVidCamAlignment");
+			};
+		});
 	} else if (pItem = "chat") {
 		hideFeature("iFrameDisabler");
 	}
