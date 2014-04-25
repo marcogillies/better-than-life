@@ -7,8 +7,11 @@ from django.template import RequestContext, loader
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
 
+from django.core import serializers
+
 from show.models import *
 from show.forms import *
+import json
 
 # Create your views here.
 
@@ -95,6 +98,17 @@ def user_login(request):
 		# blank dictionary object...
 		return render(request, 'users/login.html', context)
 
+
+@login_required(login_url='/show/login/')
+def user_status(request):
+	status = {}
+	status ["name"] = request.user.username
+	status ["credit"] = request.user.userprofile.credit
+	status ["streams_permission"] = request.user.has_perm("show.view_secret")
+	status ["chat_permission"] = request.user.has_perm("show.view_secret")
+	#data = serializers.serialize("json", [request.user])
+	return HttpResponse(json.dumps(status), content_type="application/json")
+
 @csrf_exempt
 def user_upgrade(request):
 	# Like before, obtain the context for the user's request.
@@ -119,10 +133,12 @@ def user_upgrade(request):
 		#return HttpResponse(request.user.has_perm("view_secret"))
 		#return HttpResponse("permissions "+str([str(x) for x in request.user.user_permissions.all()])+ " "
 		#  +str([str(x) for x in request.user.groups.all()])+ " " + str(request.user.has_perm("show.view_secret")))
-		return HttpResponse('%i:%i' % (request.user.userprofile.credit,request.user.has_perm("show.view_secret")))
+		#return HttpResponse('%i:%i' % (request.user.userprofile.credit,request.user.has_perm("show.view_secret")))
+		return HttpResponseRedirect('/show/status')
 	else:
+		return HttpResponseRedirect('/show/status')
 		#return HttpResponse(request.user.has_perm("view_secret"))
-		return HttpResponse('%i:%i' % (request.user.userprofile.credit,request.user.has_perm("show.view_secret")))
+		#return HttpResponse('%i:%i' % (request.user.userprofile.credit,request.user.has_perm("show.view_secret")))
 			#return HttpResponseRedirect('/show/')
 			#return HttpResponseRedirect('/users/'+request.user.username)
 		#except Exception, e:
