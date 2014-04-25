@@ -36,7 +36,15 @@ def user(request, username):
 			# Since we need to set the user attribute ourselves, we set commit=False.
 			# This delays saving the model until we're ready to avoid integrity problems.
 			profile = profile_form.save(commit=False)
+			group = profile_form.cleaned_data['group']
 			profile.user = request.user
+
+			try:
+				group = Group.objects.get(name=group)
+				request.user.groups.add(group)
+			except Group.DoesNotExist:
+				# group should exist, but this is just for safety's sake, it case the improbable should happen
+				pass
 
 			profile.credit = 5
 			if request.user.has_perm("show.view_secret"):
@@ -48,10 +56,12 @@ def user(request, username):
 
 			# Now we save the UserProfile model instance.
 			profile.save()
+			request.user.save()
 	try:
 		request.user.userprofile
 		#return render(request, 'users/user_index.html', context)
 		return HttpResponseRedirect('/show/')
+		#return HttpResponse(group)
 	except Exception, e:
 		profile_form = UserProfileForm()
 		context["profile_form"] = profile_form
@@ -107,6 +117,9 @@ def user_status(request):
 	status ["secret_permission"] = request.user.has_perm("show.view_secret")
 	status ["chat_permission"] = request.user.has_perm("show.chat")
 	status ["stream_permission"] = request.user.has_perm("show.select_stream")
+	status ["group_red"] = request.user.has_perm("show.group_red")
+	status ["group_green"] = request.user.has_perm("show.group_green")
+	status ["group_blue"] = request.user.has_perm("show.group_blue")
 	#data = serializers.serialize("json", [request.user])
 	return HttpResponse(json.dumps(status), content_type="application/json")
 

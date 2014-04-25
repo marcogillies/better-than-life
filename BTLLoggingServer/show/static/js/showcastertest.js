@@ -27,6 +27,11 @@ var changeVidCamAlignment = "changeVidCamAlignment";
 
 var changeChatAlignment = "changeChatAlignment";
 
+//Items
+var itemChat = "chat";
+var itemStreams = "select_stream";
+var itemAlignment = "secret";
+
 var userVariables = {
 	name : "",
 	credit : "",
@@ -44,16 +49,17 @@ function initializeUserVariables() {
 	});
 } 
 
-setInterval(function(){
+/*setInterval(function(){
 	//get json response
 	$.get( "http://127.0.0.1:8000/show/status/", function( data ) {
-		console.log("interval");
+		console.log("interval ");
+		console.log(data);
 		editUserVariables(data);
 	});
-},3000);
+},3000);*/
 
 function editUserVariables(variablesJson) {
-	/*
+	
 	console.log("json");
 	console.log(variablesJson.name);
 	console.log(variablesJson.credit);
@@ -67,7 +73,7 @@ function editUserVariables(variablesJson) {
 	console.log(userVariables.chat_permission);
 	console.log(userVariables.stream_permission);
 	console.log(userVariables.secret_permission);
-*/
+
 	if (userVariables.name != variablesJson.name) {
 		userVariables.name = variablesJson.name;
 		changeFeature('x-userName', variablesJson.name);
@@ -113,38 +119,24 @@ function editUserVariables(variablesJson) {
 		}
 	}
 
-
-/*
 	console.log("user permission post");
 	console.log(userVariables.name);
 	console.log(userVariables.credit);
 	console.log(userVariables.chat_permission);
 	console.log(userVariables.stream_permission);
 	console.log(userVariables.secret_permission);
-	*/
+	
 }
 
 
 function spendCredit(pItem) {
 	console.log("spendCredit on " + pItem);
-	if (pItem == "alignment") {
-		$.post( "http://127.0.0.1:8000/show/upgrade/secret/", function( data ) {
-			console.log( data );
-         	enableAlignment();
-		});
-	} else if (pItem == "streams") {
-		$.post( "http://127.0.0.1:8000/show/upgrade/select_stream/", function( data ) {
-			console.log( data );
-         	//data = data.split(":");
-         	enableSelectStreams();
-		});
-	} else if (pItem == "chat") {
-		$.post( "http://127.0.0.1:8000/show/upgrade/chat/", function( data ) {
-			console.log( data );
-         	//data = data.split(":");
-         	enableChat();
-		});
-	} 
+
+	$.post( "http://127.0.0.1:8000/show/upgrade/" + pItem + "/", function( data ) {
+		console.log("spend credit ");
+		console.log(data);
+		editUserVariables(data);
+	});
 }
 
 function followTommy() {
@@ -201,6 +193,21 @@ function disableChat() {
 function changeFeature(feature, variable) {
 	console.log("change " + feature + " to " + variable);
 	$("#" + feature).html(variable);
+}
+
+function mouseMove(event){
+        //$("#mousepos").html(event.clientX/$("#mousebox").width() + " " + event.clientY/$("#mousebox").height());
+        console.log(event.clientX/$("#mousebox").width() + " " + event.clientY/$("#mousebox").height());
+        var x = event.clientX/$("#videoSwapper").width();
+        var y = event.clientY/$("#videoSwapper").height();
+        if(Math.abs(x - oldXPos) > 0.2 || Math.abs(y - oldYPos) > 0.2){
+            oldXPos = x;
+            oldYPos = y;
+            $.post( "http://127.0.0.1:8000/show/mouseMove/"+x+"/"+y+"/",function(data){
+            //$("#error").html(data);
+            	console.log(data);
+            });
+        }
 }
 
 function disableFeature(feature) {
