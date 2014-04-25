@@ -7,6 +7,7 @@
     {% load staticfiles %}
     <link href="{% static "css/showcastertest.css" %}" type="text/css" rel="stylesheet" />
     <link href="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" type="text/css" rel="stylesheet" />
+
     <script src="http://code.jquery.com/jquery.js"></script>
     <script type="text/javascript" src="https://www.google.com/jsapi"></script>
     <script type="text/javascript" src="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
@@ -19,7 +20,7 @@
       </div>
       <div class="row">
         <div class="col-md-7">
-          <iframe src="https://play.showcaster.com/embed.jsp?SEID=135965&type=custom&render=video&nobranding=true" scrolling="no" frameborder="0" allowtransparency="yes" width="716" height="403" id="videoSwapper"></iframe>
+          <iframe src="https://play.showcaster.com/embed.jsp?SEID=135247&type=custom&render=video&nobranding=true" scrolling="no" frameborder="0" allowtransparency="yes" width="716" height="403" id="videoSwapper"></iframe>
         </div>
         <div class="col-md-3" disabled>
           <div class="iFrameWrapper" id="iFrameWrapper">
@@ -52,11 +53,19 @@
             <button type="button" class="btn btn-default btn-lg changeVidButton" onclick="spendCredit('alignment')" id="upgradeButton">Upgrade</button>
           </div>
           <h3 id = "creditview">{{ user.username }} credit {{ user.userprofile.credit }} </h3>
+
+            <button type="button" class="btn btn-default btn-lg changeVidButton" onclick="swapChat(chat1)" id="changeChat1">Chat 1</button>
+          </div>
+          <div class="row-fluid top-margin">
+            <button type="button" class="btn btn-default btn-lg changeVidButton" onclick="swapChat(chat2)" id="changeChatAlignment" disabled>Chat 2</button>
+          </div>
         </div>
       </div>
       <div class="row footer">
-            a
-
+            <button type="button" class="btn btn-default btn-lg" onclick="spendCredit(chat)" id="buyChat">Unlock Chat</button>
+            <button type="button" class="btn btn-default btn-lg" onclick="spendCredit(alignment)" id="buyAlignment">Follow Tommy</button>
+            <button type="button" class="btn btn-default btn-lg" onclick="spendCredit(alignment)" id="buyAlignment">Unlock secret</button>
+            <button type="button" class="btn btn-default btn-lg" onclick="spendCredit(chat)" id="buyChat">Open Chat</button>
       </div>
     </div>
 
