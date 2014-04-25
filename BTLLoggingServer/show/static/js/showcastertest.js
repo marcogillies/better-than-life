@@ -41,6 +41,20 @@ var userVariables = {
 	currentVid : cam1
 }
 
+// code to send mouse data:
+//$("#mousebox").mousemove(function(event){
+//         $("#mousepos").html(event.clientX/$("#mousebox").width() + " " + event.clientY/$("#mousebox").height());
+//         var x = event.clientX/$("#mousebox").width();
+//         var y = event.clientY/$("#mousebox").height();
+//         if(Math.abs(x - oldXPos) > 0.2 || Math.abs(y - oldYPos) > 0.2){
+//             oldXPos = x;
+//             oldYPos = y;
+//             $.post( "http://127.0.0.1:8000/show/mouseMove/"+x+"/"+y+"/",function(data){
+//             //$("#error").html(data);
+//             });
+//         }
+// });
+
 initializeUserVariables();
 
 function initializeUserVariables() {
@@ -49,30 +63,30 @@ function initializeUserVariables() {
 	});
 } 
 
-/*setInterval(function(){
+setInterval(function(){
 	//get json response
 	$.get( "http://127.0.0.1:8000/show/status/", function( data ) {
-		console.log("interval ");
-		console.log(data);
+		//console.log("interval ");
+		//console.log(data);
 		editUserVariables(data);
 	});
-},3000);*/
+},3000);
 
 function editUserVariables(variablesJson) {
 	
-	console.log("json");
-	console.log(variablesJson.name);
-	console.log(variablesJson.credit);
-	console.log(variablesJson.chat_permission);
-	console.log(variablesJson.stream_permission);
-	console.log(variablesJson.secret_permission);
+	// console.log("json");
+	// console.log(variablesJson.name);
+	// console.log(variablesJson.credit);
+	// console.log(variablesJson.chat_permission);
+	// console.log(variablesJson.stream_permission);
+	// console.log(variablesJson.secret_permission);
 
-	console.log("user permission pre");
-	console.log(userVariables.name);
-	console.log(userVariables.credit);
-	console.log(userVariables.chat_permission);
-	console.log(userVariables.stream_permission);
-	console.log(userVariables.secret_permission);
+	// console.log("user permission pre");
+	// console.log(userVariables.name);
+	// console.log(userVariables.credit);
+	// console.log(userVariables.chat_permission);
+	// console.log(userVariables.stream_permission);
+	// console.log(userVariables.secret_permission);
 
 	if (userVariables.name != variablesJson.name) {
 		userVariables.name = variablesJson.name;
@@ -89,7 +103,7 @@ function editUserVariables(variablesJson) {
 		if (variablesJson.chat_permission == true) {
 			enableChat();
 		} else if (variablesJson == false) {
-			//disableChat();
+			disableChat();
 		} else {
 			//log error
 		}
@@ -101,7 +115,7 @@ function editUserVariables(variablesJson) {
 		if (variablesJson.stream_permission == true) {
 			enableSelectStreams();
 		} else if (variablesJson.stream_permission == false) {
-			//disableSelectStreams();
+			disableSelectStreams();
 		} else {
 			//log error
 		}
@@ -113,18 +127,18 @@ function editUserVariables(variablesJson) {
 		if (variablesJson.secret_permission == true) {
 			enableAlignment();
 		} else if (variablesJson.secret_permission == false) {
-			//disableAlignment();
+			disableAlignment();
 		} else {
 			//log error
 		}
 	}
 
-	console.log("user permission post");
-	console.log(userVariables.name);
-	console.log(userVariables.credit);
-	console.log(userVariables.chat_permission);
-	console.log(userVariables.stream_permission);
-	console.log(userVariables.secret_permission);
+	// console.log("user permission post");
+	// console.log(userVariables.name);
+	// console.log(userVariables.credit);
+	// console.log(userVariables.chat_permission);
+	// console.log(userVariables.stream_permission);
+	// console.log(userVariables.secret_permission);
 	
 }
 
