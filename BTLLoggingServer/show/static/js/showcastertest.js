@@ -5,35 +5,41 @@ var cam4 = 135968;
 var cam5 = 135969;
 var cam6 = 135970;
 
-var chat1 = ;
-var chat2 = ;
-var chat3 = ;
+var chat1 = 135965;
+var chat2 = 135970;
 
 setInterval(function(){
-	console.log("pingDb")
+	refreshPageVariables();
 },3000);
 
 function spendCredit(pItem) {
 	console.log("spendCredit on " + pItem);
-	if (pItem = "alignment") {
-<<<<<<< Updated upstream:BTLLoggingServer/show/static/js/showcastertest.js
+	if (pItem == "alignment") {
 		$.post( "http://127.0.0.1:8000/show/upgrade/", function( data ) {
 			console.log( data );
          	data = data.split(":");
          	$("#creditview").html("user.username credit "+data[0]);
          	if(data[1] == "1"){
 				enableFeature("changeVidCamAlignment");
+				enableFeature("changeChatAlignment");
+				$("#buyAlignment").attr("disabled", "disabled");
 			};
 		});
-=======
-		enableFeature("changeVidCamAlignment");
-		enableFeature("changeChatAlignment");
-		$("#buyAlignment").attr("disabled", "disabled");
->>>>>>> Stashed changes:BTLLoggingServer/show/templates/showcastertest.js
-	} else if (pItem = "chat") {
-		hideFeature("iFrameDisabler");
-		$("#buyChat").attr("disabled", "disabled");
+	} else if (pItem == "chat") {
+		$.post( "http://127.0.0.1:8000/show/upgrade/", function( data ) {
+			console.log( data );
+         	data = data.split(":");
+         	$("#creditview").html("user.username credit "+data[0]);
+         	if(data[1] == "1"){
+				hideFeature("iFrameDisabler");
+				$("#buyChat").attr("disabled", "disabled");
+			};
+		});
 	}
+}
+
+function refreshPageVariables() {
+	console.log("pingDb")
 }
 
 function disableFeature(feature) {
@@ -57,7 +63,7 @@ function showFeature(feature) {
 }
 
 function swapVideo(videoId) {
-	console.log("swap video from " + $("#videoSwapper").attr('src').match(regEx)[0] + " to " videoId);
+	console.log("swap video to" + videoId);
 	var regEx = /\d{6}/;
 	$("#videoSwapper").attr('src', $("#videoSwapper").attr('src').replace(regEx, videoId));
 }

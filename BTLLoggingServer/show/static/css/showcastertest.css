@@ -1,10 +1,8 @@
 .header {
-	background-color:black;
 	height:50px;
 }
 
 .footer {
-	background-color:black;
 	height:50px;
 }
 
@@ -37,7 +35,7 @@
   bottom: 0;
   z-index: 1000;
   cursor: default;
-  background-image: url('test.png');
+  background-image: url('/static/test.png');
   opacity:0.5;
   filter:alpha(opacity=50); /* For IE8 and earlier */
 }

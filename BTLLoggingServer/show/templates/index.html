@@ -16,7 +16,7 @@
   <body>
     <div class="container-fluid" style="height:100%">
       <div class="row header">
-            
+             <h3 id = "creditview">{{ user.username }} credit {{ user.userprofile.credit }} </h3>
       </div>
       <div class="row">
         <div class="col-md-7">
@@ -50,10 +50,6 @@
             <button type="button" class="btn btn-default btn-lg changeVidButton" onclick="swapVideo(cam6)" id="changeVidCamAlignment" {% if not perms.show.view_secret %} disabled {% endif %} >Camera 6</button>
           </div>
           <div class="row-fluid top-margin">
-            <button type="button" class="btn btn-default btn-lg changeVidButton" onclick="spendCredit('alignment')" id="upgradeButton">Upgrade</button>
-          </div>
-          <h3 id = "creditview">{{ user.username }} credit {{ user.userprofile.credit }} </h3>
-
             <button type="button" class="btn btn-default btn-lg changeVidButton" onclick="swapChat(chat1)" id="changeChat1">Chat 1</button>
           </div>
           <div class="row-fluid top-margin">
@@ -62,10 +58,9 @@
         </div>
       </div>
       <div class="row footer">
-            <button type="button" class="btn btn-default btn-lg" onclick="spendCredit(chat)" id="buyChat">Unlock Chat</button>
-            <button type="button" class="btn btn-default btn-lg" onclick="spendCredit(alignment)" id="buyAlignment">Follow Tommy</button>
-            <button type="button" class="btn btn-default btn-lg" onclick="spendCredit(alignment)" id="buyAlignment">Unlock secret</button>
-            <button type="button" class="btn btn-default btn-lg" onclick="spendCredit(chat)" id="buyChat">Open Chat</button>
+            <button type="button" class="btn btn-default btn-lg" onclick="spendCredit('chat')" id="buyChat">Unlock Chat</button>
+            <button type="button" class="btn btn-default btn-lg" onclick="enableFeature('buyAlignment')" id="followTommy">Follow Tommy</button>
+            <button type="button" class="btn btn-default btn-lg" onclick="spendCredit('alignment')" id="buyAlignment" disabled>Unlock secret</button>
       </div>
     </div>
 
