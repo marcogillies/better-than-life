@@ -104,26 +104,30 @@ def user_status(request):
 	status = {}
 	status ["name"] = request.user.username
 	status ["credit"] = request.user.userprofile.credit
-	status ["streams_permission"] = request.user.has_perm("show.view_secret")
-	status ["chat_permission"] = request.user.has_perm("show.view_secret")
+	status ["secret_permission"] = request.user.has_perm("show.view_secret")
+	status ["chat_permission"] = request.user.has_perm("show.chat")
+	status ["stream_permission"] = request.user.has_perm("show.select_stream")
 	#data = serializers.serialize("json", [request.user])
 	return HttpResponse(json.dumps(status), content_type="application/json")
 
 @csrf_exempt
-def user_upgrade(request):
+def user_upgrade(request, type):
 	# Like before, obtain the context for the user's request.
 	context = RequestContext(request)
 	#if request.method == 'POST':
 		#try:
-	if not request.user.has_perm("show.view_secret") and request.user.userprofile.credit > 0:
+	if not request.user.has_perm("show."+type) and request.user.userprofile.credit > 0:
 		request.user.userprofile.credit -= 1
 		request.user.userprofile.upgradeStatus = True
 		#content_type = ContentType.objects.get_for_model(UserProfile)
 		#permission = Permission.objects.get(content_type=content_type, codename='view_secret')
 		try:
-			group = Group.objects.get(name='theholy')
-			request.user.groups.add(group)
-		except Group.DoesNotExist:
+			#group = Group.objects.get(name='theholy')
+			#request.user.groups.add(group)
+			custom_permission = Permission.objects.get(codename=type)
+			request.user.user_permissions.add(custom_permission)
+			#user.save()
+		except Permission.DoesNotExist:
 			# group should exist, but this is just for safety's sake, it case the improbable should happen
 			pass
 		 
@@ -134,8 +138,10 @@ def user_upgrade(request):
 		#return HttpResponse("permissions "+str([str(x) for x in request.user.user_permissions.all()])+ " "
 		#  +str([str(x) for x in request.user.groups.all()])+ " " + str(request.user.has_perm("show.view_secret")))
 		#return HttpResponse('%i:%i' % (request.user.userprofile.credit,request.user.has_perm("show.view_secret")))
+		#return HttpResponse(type)
 		return HttpResponseRedirect('/show/status')
 	else:
+		#return HttpResponse(type)
 		return HttpResponseRedirect('/show/status')
 		#return HttpResponse(request.user.has_perm("view_secret"))
 		#return HttpResponse('%i:%i' % (request.user.userprofile.credit,request.user.has_perm("show.view_secret")))
