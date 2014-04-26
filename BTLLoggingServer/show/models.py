@@ -58,7 +58,7 @@ class LogItem(models.Model):
 	user = models.ForeignKey(User)
 	show = models.ForeignKey(Show)
 
-	date = models.DateTimeField(auto_now_add=True, blank=True)
+	date = models.DateTimeField('date and time',auto_now_add=True)	
 
 	act = models.IntegerField(name="act")
 	section = models.CharField(max_length=20,

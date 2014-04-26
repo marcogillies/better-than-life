@@ -1,0 +1,47 @@
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link href="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" type="text/css" rel="stylesheet" />
+
+    <script src="http://code.jquery.com/jquery.js"></script>
+    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+    <script type="text/javascript" src="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+  </head>
+  <body>
+  <div class="container-fluid" style="height:100%">
+      <div class="row header">
+      </div>
+      {% for logitem in log_list %}
+      <div class="row">
+        <div class="col-md-2">
+          {{ logitem.date }}
+        </div>
+        <div class="col-md-1">
+          {{ logitem.show.name }}
+        </div>
+        <div class="col-md-1">
+          {{ logitem.act }}
+        </div>
+        <div class="col-md-1">
+          {{ logitem.section }}
+        </div>
+        <div class="col-md-1">
+          {{ logitem.user.username }}
+        </div>
+        <div class="col-md-2">
+          {{ logitem.category }}
+        </div>
+        <div class="col-md-4">
+          {{ logitem.content }}
+        </div>
+      </div>
+      {% endfor %}
+      <div class="row footer">
+            
+      </div>
+    </div>
+  </body>
+</html>

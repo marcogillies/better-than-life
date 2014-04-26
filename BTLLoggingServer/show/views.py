@@ -13,6 +13,7 @@ from show.models import *
 from show.forms import *
 import json
 import traceback
+from datetime import datetime
 
 # Create your views here.
 
@@ -20,10 +21,10 @@ import traceback
 def index(request):
 	if not hasattr(request.user, 'userprofile') :
 		return HttpResponseRedirect('/users/'+request.user.username)
-	latest_show_list = Show.objects.order_by('-date')[:5]
+	#latest_show_list = Show.objects.order_by('-date')[:5]
 	template = loader.get_template('index.html')
 	context = RequestContext(request, {
-		'latest_show_list': latest_show_list,
+		#'latest_show_list': latest_show_list,
 	})
 	return HttpResponse(template.render(context))
 
@@ -149,10 +150,22 @@ def user_upgrade(request, type):
 		except Permission.DoesNotExist:
 			# group should exist, but this is just for safety's sake, it case the improbable should happen
 			pass
-		 
+		
+		logItem = LogItem(user = request.user,
+				show = request.user.userprofile.show, 
+				date = datetime.now(),
+			 	act = request.user.userprofile.show.act,
+			 	section = request.user.userprofile.show.section,
+			 	category = "UPGRADE", 
+			 	content = type)
+		logItem.save()
+
 		#request.user.user_permissions.add(permission)
 		request.user.userprofile.save()
 		request.user.save()
+
+		
+
 		#return HttpResponse(request.user.has_perm("view_secret"))
 		#return HttpResponse("permissions "+str([str(x) for x in request.user.user_permissions.all()])+ " "
 		#  +str([str(x) for x in request.user.groups.all()])+ " " + str(request.user.has_perm("show.view_secret")))
@@ -160,6 +173,23 @@ def user_upgrade(request, type):
 		#return HttpResponse(type)
 		return HttpResponseRedirect('/show/status')
 	else:
+		if request.user.userprofile.credit <= 0 :
+			logItem = LogItem(user = request.user,
+					show = request.user.userprofile.show, 
+				 	act = request.user.userprofile.show.act,
+				 	section = request.user.userprofile.show.section,
+				 	category = "UPGRADE", 
+				 	content = type + " failed due to lack of credit")
+			logItem.save()
+		else: 
+			logItem = LogItem(user = request.user,
+					show = request.user.userprofile.show, 
+				 	act = request.user.userprofile.show.act,
+				 	section = request.user.userprofile.show.section,
+				 	category = "UPGRADE", 
+				 	content = type + " failed due to already having permission")
+			logItem.save()
+
 		#return HttpResponse(type)
 		return HttpResponseRedirect('/show/status')
 		#return HttpResponse(request.user.has_perm("view_secret"))
@@ -224,6 +254,7 @@ def log(request):
 			logItem = LogItem(user = request.user,
 				show = request.user.userprofile.show, 
 			 	act = request.user.userprofile.show.act,
+				date = datetime.now(),
 			 	section = request.user.userprofile.show.section,
 			 	category = category, 
 			 	content = content)
@@ -235,4 +266,12 @@ def log(request):
 
 	else: 
 		return HttpResponse("cannot post to the log url")
+
+def logDisplay(request):
+	template = loader.get_template('logdisplay.html')
+	log_list = LogItem.objects.order_by('-date')
+	context = RequestContext(request, {
+		'log_list': log_list,
+	})
+	return HttpResponse(template.render(context))
 	

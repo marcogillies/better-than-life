@@ -9,6 +9,6 @@ urlpatterns = patterns('',
     url(r'^status/$', views.user_status, name='status'),
     url(r'^mouseMove/(?P<xpos>\d\.\d+)/(?P<ypos>\d\.\d+)/?$', views.mouseMove, name='mousemove'),
     url(r'^averageMouse/$', views.averageMouse, name='averageMouse'),
-    url(r'^log/$', views.log, name='log')
-
+    url(r'^log/$', views.log, name='log'),
+    url(r'^logdisplay/$', views.logDisplay, name='logdisplay')
 )
