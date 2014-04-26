@@ -274,4 +274,18 @@ def logDisplay(request):
 		'log_list': log_list,
 	})
 	return HttpResponse(template.render(context))
+
+@login_required(login_url='/show/login/')
+def postShowQuestionnaire(request):
+	context = RequestContext(request)
+	if request.method == 'POST':
+		questionnaire_form = PostShowQuestionnaireForm(request.POST, user = request.user)
+		if questionnaire_form.is_valid():
+			
+			return HttpResponse("thanks")
+	else: 
+		questionnaire_form = PostShowQuestionnaireForm(user = request.user)
+		context["questionnaire"] = questionnaire_form
+		return render(request, 'users/PostQuestionnaire.html', context)
+
 	

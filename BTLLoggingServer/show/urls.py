@@ -10,5 +10,6 @@ urlpatterns = patterns('',
     url(r'^mouseMove/(?P<xpos>\d\.\d+)/(?P<ypos>\d\.\d+)/?$', views.mouseMove, name='mousemove'),
     url(r'^averageMouse/$', views.averageMouse, name='averageMouse'),
     url(r'^log/$', views.log, name='log'),
-    url(r'^logdisplay/$', views.logDisplay, name='logdisplay')
+    url(r'^logdisplay/$', views.logDisplay, name='logdisplay'),
+    url(r'^postQuestionnaire/$', views.postShowQuestionnaire, name='postQuestionnaire')
 )

@@ -17,3 +17,14 @@ class UserProfileForm(forms.ModelForm):
     class Meta:
         model = UserProfile
         fields = ('colour','show')
+
+class PostShowQuestionnaireForm (forms.Form):
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', 0)
+        super(PostShowQuestionnaireForm, self).__init__(*args, **kwargs)
+
+        self.fields["how happy were you with your experience?"] = forms.ChoiceField(widget=forms.RadioSelect(),choices=[(i,i) for i in range(7)])
+
+        for logitem in user.logitem_set.filter(category="UPGRADE"):
+            fieldName = "During the {section} section of act {act} you chose to buy a {type}, why did you choose to buy it at that time?".format(section=logitem.section, act=logitem.act, type=logitem.content)
+            self.fields[fieldName] = forms.CharField(widget=forms.Textarea)

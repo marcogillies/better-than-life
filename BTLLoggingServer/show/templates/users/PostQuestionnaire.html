@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Better than life</title>
+    </head>
+
+    <body>
+        <h1>Please let tell us a bit about your experience.</h1>
+
+        <form id="user_form" method="post" action="/users/{{ username }}/"
+                enctype="multipart/form-data">
+
+            {% csrf_token %} 
+
+            {% load show_filters %}
+
+            <!-- Display each form. The as_p method wraps each element in a paragraph
+                 (<p>) element. This ensures each element appears on a new line,
+                 making everything look neater. -->
+            <!-- {{ questionnaire.as_p }}-->
+            {% for field in questionnaire %}
+                {% if field.field.widget|klass == "RadioSelect" %}
+                    <div class="fieldWrapper">
+                        <p>{{ field.errors }}</p>
+                        <p>{{ field.label_tag }}</p>
+                        <!-- p>{{ field }}</p -->
+                        Not a all
+                        {% for radio in field %}
+                        <label for="{{ radio.id_for_label }}">
+                            {{ radio.choice_label }}
+                            <span class="radio">{{ radio.tag }}</span>
+                        </label>
+                        {% endfor %}
+                        Very 
+                    </div>
+                {% else %}   
+                    <div class="fieldWrapper">
+                        <p>{{ field.errors }}</p>
+                        <p>{{ field.label_tag }}</p>
+                        <p>{{ field }}</p>
+                    </div>
+                {% endif %}
+            {% endfor %}
+
+            <!-- Provide a button to click to submit the form. -->
+            <input type="submit" name="submit" value="Register" />
+        </form>
+    </body>
+</html>
