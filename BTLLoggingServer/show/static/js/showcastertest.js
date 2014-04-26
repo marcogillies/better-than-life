@@ -151,6 +151,9 @@ function spendCredit(pItem) {
 		console.log(data);
 		editUserVariables(data);
 	});
+	$.post( "http://127.0.0.1:8000/show/log/", "UPGRADE\n"+pItem, function( data ) {
+         console.log( data );
+    });
 }
 
 function followTommy() {
@@ -250,4 +253,7 @@ function swapVideo(videoId) {
 	console.log("swap video to " + videoId);
 	var regEx = /\d{6}/;
 	$("#videoSwapper").attr('src', $("#videoSwapper").attr('src').replace(regEx, videoId));
+	$.post( "http://127.0.0.1:8000/show/log/", "SWAP_VIDEO"+videoId, function( data ) {
+         console.log( data );
+    });
 }

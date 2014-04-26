@@ -12,6 +12,7 @@ from django.core import serializers
 from show.models import *
 from show.forms import *
 import json
+import traceback
 
 # Create your views here.
 
@@ -41,8 +42,8 @@ def user(request, username):
 			group = profile_form.cleaned_data['group']
 			profile.user = request.user
 
-			show = profile_form.cleaned_data['myshow']
-			profile.show = Show.objects.get(name=show)
+			#show = profile_form.cleaned_data['show']
+			#profile.show = Show.objects.get(name=show)
 
 			try:
 				group = Group.objects.get(name=group)
@@ -210,14 +211,28 @@ def averageMouse(request):
 @csrf_exempt
 def log(request):
 	if request.method == 'POST':
-		category = request.readline()
-		content = ""
-		for line in request.readlines():
-			content = content + line
-		request.user.logitem_set.create(show = request.user.show, 
-			act = request.user.show.act,
-			section = request.user.show.section,
-			category = category, 
-			content = content)
-		request.user.save()
-	return HttpResponse("")
+		try:
+			category = request.readline()
+			content = ""
+			for line in request.readlines():
+				content = content + line
+			# request.user.logitem_set.create(show = request.user.show, 
+			# 	act = request.user.show.act,
+			# 	section = request.user.show.section,
+			# 	category = category, 
+			# 	content = content)
+			logItem = LogItem(user = request.user,
+				show = request.user.userprofile.show, 
+			 	act = request.user.userprofile.show.act,
+			 	section = request.user.userprofile.show.section,
+			 	category = category, 
+			 	content = content)
+			request.user.save()
+			logItem.save()
+			return HttpResponse("logged item " + str(logItem))
+		except Exception, e:
+			return HttpResponse("error: " + traceback.format_exc())
+
+	else: 
+		return HttpResponse("cannot post to the log url")
+	
