@@ -18,7 +18,7 @@ import json
 @login_required(login_url='/show/login/')
 def index(request):
 	if not hasattr(request.user, 'userprofile') :
-		return HttpResponseRedirect('/users/'+user.username)
+		return HttpResponseRedirect('/users/'+request.user.username)
 	latest_show_list = Show.objects.order_by('-date')[:5]
 	template = loader.get_template('index.html')
 	context = RequestContext(request, {
@@ -40,6 +40,9 @@ def user(request, username):
 			profile = profile_form.save(commit=False)
 			group = profile_form.cleaned_data['group']
 			profile.user = request.user
+
+			show = profile_form.cleaned_data['myshow']
+			profile.show = Show.objects.get(name=show)
 
 			try:
 				group = Group.objects.get(name=group)
@@ -211,6 +214,10 @@ def log(request):
 		content = ""
 		for line in request.readlines():
 			content = content + line
-		request.user.logitem_set.create(category = category, content = content)
+		request.user.logitem_set.create(show = request.user.show, 
+			act = request.user.show.act,
+			section = request.user.show.section,
+			category = category, 
+			content = content)
 		request.user.save()
 	return HttpResponse("")

@@ -1,5 +1,5 @@
 from django import forms
-from show.models import UserProfile
+from show.models import UserProfile, Show
 
 
 class UserProfileForm(forms.ModelForm):
@@ -11,6 +11,9 @@ class UserProfileForm(forms.ModelForm):
     									  ('green', 'green'),
     									  ('blue', 'blue'),
     									  ))
+    myshow = forms.ChoiceField(choices = ((s.name, s.name) for s in Show.objects.all()))
+    #myshow = forms.ChoiceField(choices = ((name, name) for name in ["one", "two"]))
+
     class Meta:
         model = UserProfile
         fields = ('colour',)

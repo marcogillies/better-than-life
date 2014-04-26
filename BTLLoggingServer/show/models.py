@@ -1,11 +1,25 @@
 from django.db import models
 from django.contrib.auth.models import User
 
+SECTIONS = (
+		("advance", "advance"),
+		("preshow", "preshow"),
+		("arrival", "arrival"),
+		("QandA", "QandA"),
+		("ouija", "ouija"),
+	)
+
 # Create your models here.
 
 class Show(models.Model):
-	name = models.CharField(max_length=200)
+
+
+	name = models.CharField(max_length=20)
 	date = models.DateTimeField('date and time')
+	act  = models.IntegerField(name="act", default=-1)
+	section = models.CharField(max_length=20,
+                              choices=SECTIONS,
+                              default="advance")
 
 	def __unicode__(self):  # Python 3: def __str__(self):
 		return self.name
@@ -14,6 +28,8 @@ class Show(models.Model):
 class UserProfile(models.Model):
 	# This line is required. Links UserProfile to a User model instance.
 	user = models.OneToOneField(User)
+
+	show = models.ForeignKey(Show)
 
 	# The additional attributes we wish to include.
 	credit = models.IntegerField()
@@ -40,6 +56,13 @@ class UserProfile(models.Model):
 
 class LogItem(models.Model):
 	user = models.ForeignKey(User)
+	show = models.ForeignKey(Show)
+
+	date = models.DateTimeField(auto_now_add=True, blank=True)
+
+	act = models.IntegerField(name="act")
+	section = models.CharField(max_length=20,
+                              choices=SECTIONS)
 
 	category = models.TextField()
 	content = models.TextField()
