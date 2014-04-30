@@ -6,9 +6,9 @@
     </head>
 
     <body>
-        <h1>Login to Rango</h1>
+        <h1>Login to Better Than Life</h1>
 
-        <form id="login_form" method="post" action="/show/login/">
+        <form id="login_form" method="post" action= "{% url 'show.views.user_login'  %}">
             {% csrf_token %}
             Username: <input type="text" name="username" value="" size="50" />
             <br />
@@ -17,6 +17,6 @@
 
             <input type="submit" value="submit" />
         </form>
-
+        <a href = "{% url 'register' %}">register</a>
     </body>
 </html>

@@ -41,6 +41,13 @@ var userVariables = {
 	currentVid : cam1
 }
 
+var showURL = "";
+
+function setShowURL(url){
+	showURL = url;
+	console.log(showURL);
+}
+
 // code to send mouse data:
 //$("#mousebox").mousemove(function(event){
 //         $("#mousepos").html(event.clientX/$("#mousebox").width() + " " + event.clientY/$("#mousebox").height());
@@ -58,14 +65,16 @@ var userVariables = {
 initializeUserVariables();
 
 function initializeUserVariables() {
-	$.get( "http://127.0.0.1:8000/show/status/", function( data ) {
+	//$.get( "http://127.0.0.1:8000/show/status/", function( data ) {
+	$.get( showURL + "status/", function( data ) {
 		editUserVariables(data);
 	});
 } 
 
 setInterval(function(){
 	//get json response
-	$.get( "http://127.0.0.1:8000/show/status/", function( data ) {
+	//$.get( "http://127.0.0.1:8000/show/status/", function( data ) {
+	$.get( showURL + "status/", function( data ) {
 		//console.log("interval ");
 		//console.log(data);
 		editUserVariables(data);
@@ -146,7 +155,8 @@ function editUserVariables(variablesJson) {
 function spendCredit(pItem) {
 	console.log("spendCredit on " + pItem);
 
-	$.post( "http://127.0.0.1:8000/show/upgrade/" + pItem + "/", function( data ) {
+	$.post( "" + showURL + "upgrade/" + pItem + "/", function( data ) {
+	//$.post( "http://127.0.0.1:8000/show/upgrade/" + pItem + "/", function( data ) {
 		console.log("spend credit ");
 		console.log(data);
 		editUserVariables(data);
@@ -222,7 +232,8 @@ function mouseMove(event){
         if(Math.abs(x - oldXPos) > 0.2 || Math.abs(y - oldYPos) > 0.2){
             oldXPos = x;
             oldYPos = y;
-            $.post( "http://127.0.0.1:8000/show/mouseMove/"+x+"/"+y+"/",function(data){
+            //$.post( "http://127.0.0.1:8000/show/mouseMove/"+x+"/"+y+"/",function(data){
+            $.post( showURL+"mouseMove/"+x+"/"+y+"/",function(data){
             //$("#error").html(data);
             	console.log(data);
             });
@@ -253,7 +264,8 @@ function swapVideo(videoId) {
 	console.log("swap video to " + videoId);
 	var regEx = /\d{6}/;
 	$("#videoSwapper").attr('src', $("#videoSwapper").attr('src').replace(regEx, videoId));
-	$.post( "http://127.0.0.1:8000/show/log/", "SWAP_VIDEO\n"+videoId, function( data ) {
+	//$.post( "http://127.0.0.1:8000/show/log/", "SWAP_VIDEO\n"+videoId, function( data ) {
+    $.post( showURL+"log/", "SWAP_VIDEO\n"+videoId, function( data ) {
          console.log( data );
     });
 }

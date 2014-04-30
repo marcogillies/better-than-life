@@ -35,7 +35,7 @@
   bottom: 0;
   z-index: 1000;
   cursor: default;
-  background-image: url('/static/test.png');
+  background-image: url('../test.png');
   opacity:0.5;
   filter:alpha(opacity=50); /* For IE8 and earlier */
 }

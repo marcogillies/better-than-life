@@ -11,5 +11,6 @@ urlpatterns = patterns('',
     url(r'^averageMouse/$', views.averageMouse, name='averageMouse'),
     url(r'^log/$', views.log, name='log'),
     url(r'^logdisplay/$', views.logDisplay, name='logdisplay'),
-    url(r'^postQuestionnaire/$', views.postShowQuestionnaire, name='postQuestionnaire')
+    url(r'^postQuestionnaire/$', views.postShowQuestionnaire, name='postQuestionnaire'),
+    url(r'^register/$', views.Registration.as_view(), name='register')
 )

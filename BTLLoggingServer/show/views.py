@@ -6,6 +6,9 @@ from django.http import HttpResponseRedirect, HttpResponse
 from django.template import RequestContext, loader
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
+from django.core.urlresolvers import reverse
+
+from registration.backends.simple.views import RegistrationView
 
 from django.core import serializers
 
@@ -17,10 +20,11 @@ from datetime import datetime
 
 # Create your views here.
 
-@login_required(login_url='/show/login/')
+@login_required #login_url='/show/login/')#reverse('show.views.user_login'))
 def index(request):
 	if not hasattr(request.user, 'userprofile') :
-		return HttpResponseRedirect('/users/'+request.user.username)
+		#return HttpResponseRedirect('/users/'+request.user.username)
+		return HttpResponseRedirect(reverse('show.views.user', args=(request.user.username,)))
 	#latest_show_list = Show.objects.order_by('-date')[:5]
 	template = loader.get_template('index.html')
 	context = RequestContext(request, {
@@ -28,7 +32,7 @@ def index(request):
 	})
 	return HttpResponse(template.render(context))
 
-@login_required(login_url='/show/login/')
+@login_required #(login_url='/show/login/')
 def user(request, username):
 	context = RequestContext(request)
 	context["username"] = username
@@ -67,13 +71,16 @@ def user(request, username):
 	try:
 		request.user.userprofile
 		#return render(request, 'users/user_index.html', context)
-		return HttpResponseRedirect('/show/')
+		return HttpResponseRedirect(reverse('show.views.index'))
 		#return HttpResponse(group)
 	except Exception, e:
 		profile_form = UserProfileForm()
 		context["profile_form"] = profile_form
 		return render(request, 'users/profile_form.html', context)
 	
+class Registration(RegistrationView):
+    def get_success_url(self, request, user):
+        return reverse('show.views.user', args=(user.username,))
 
 def user_login(request):
 	# Like before, obtain the context for the user's request.
@@ -99,14 +106,16 @@ def user_login(request):
 				# If the account is valid and active, we can log the user in.
 				# We'll send the user back to the homepage.
 				login(request, user)
-				return HttpResponseRedirect('/users/'+user.username)
+				#return HttpResponseRedirect('/users/'+user.username)	
+				return HttpResponseRedirect(reverse('show.views.user', args=(user.username,)))
 			else:
 				# An inactive account was used - no logging in!
 				return HttpResponse("Your Better than life account is disabled.")
 		else:
 			# Bad login details were provided. So we can't log the user in.
-			print "Invalid login details: {0}, {1}".format(username, password)
-			return HttpResponseRedirect('/accounts/register/')
+			#print "Invalid login details: {0}, {1}".format(username, password)
+			#return HttpResponseRedirect('/accounts/register/')
+			return HttpResponseRedirect(reverse('register'))
 
 	# The request is not a HTTP POST, so display the login form.
 	# This scenario would most likely be a HTTP GET.
@@ -116,7 +125,8 @@ def user_login(request):
 		return render(request, 'users/login.html', context)
 
 
-@login_required(login_url='/show/login/')
+
+@login_required #(login_url='/show/login/')
 def user_status(request):
 	status = {}
 	status ["name"] = request.user.username
@@ -171,7 +181,8 @@ def user_upgrade(request, type):
 		#  +str([str(x) for x in request.user.groups.all()])+ " " + str(request.user.has_perm("show.view_secret")))
 		#return HttpResponse('%i:%i' % (request.user.userprofile.credit,request.user.has_perm("show.view_secret")))
 		#return HttpResponse(type)
-		return HttpResponseRedirect('/show/status')
+		#return HttpResponseRedirect('/show/status')
+		return HttpResponseRedirect(reverse('status'))
 	else:
 		if request.user.userprofile.credit <= 0 :
 			logItem = LogItem(user = request.user,
@@ -191,7 +202,8 @@ def user_upgrade(request, type):
 			logItem.save()
 
 		#return HttpResponse(type)
-		return HttpResponseRedirect('/show/status')
+		#return HttpResponseRedirect('/show/status')
+		return HttpResponseRedirect(reverse('status'))
 		#return HttpResponse(request.user.has_perm("view_secret"))
 		#return HttpResponse('%i:%i' % (request.user.userprofile.credit,request.user.has_perm("show.view_secret")))
 			#return HttpResponseRedirect('/show/')
@@ -220,7 +232,8 @@ def mouseMove(request, xpos, ypos):
 		except Exception, e:
 			profile_form = UserProfileForm()
 			context["profile_form"] = profile_form
-			return HttpResponseRedirect('/users/'+user.username)
+			#return HttpResponseRedirect('/users/'+user.username)
+			return HttpResponseRedirect(reverse('show.views.user', args=(user.username,)))
 			#return HttpResponse(request.user.userprofile.credit)
 	return HttpResponse('')
 
@@ -275,7 +288,7 @@ def logDisplay(request):
 	})
 	return HttpResponse(template.render(context))
 
-@login_required(login_url='/show/login/')
+@login_required #(login_url='/show/login/')
 def postShowQuestionnaire(request):
 	context = RequestContext(request)
 	if request.method == 'POST':
