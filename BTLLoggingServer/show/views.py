@@ -325,6 +325,7 @@ def cues(request):
 				attrs["value"] = str(action.channel)
 			elif actionType == "osc":
 				attrs["address"] = str(action.address)
+				attrs["typetag"] = str(action.typetag)
 				attrs["message"] = str(action.textValue)
 			actionEl = ET.SubElement(cueEl, "Action", attrs)
 	return HttpResponse(ET.tostring(root))

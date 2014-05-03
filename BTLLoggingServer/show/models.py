@@ -102,6 +102,7 @@ class Action(models.Model):
 	channel = models.IntegerField(blank = True, default = -1)
 	value = models.IntegerField(blank = True, default = -1)
 	address = models.CharField(max_length=200,blank = True)
+	typetag = models.CharField(max_length=10,blank = True)
 	textValue = models.CharField(max_length=200,blank = True)
 
 	class Meta:
