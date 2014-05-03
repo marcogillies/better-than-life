@@ -307,9 +307,11 @@ def postShowQuestionnaire(request):
 
 def cues(request):
 	root = ET.Element("CueList")
+	for stream in Stream.objects.all():
+		streamEl = ET.SubElement(root, "Stream", {"name" : stream.name, "seid" : str(stream.SEID), "type" : stream.type})
 	for cue in Cue.objects.all():
-		if cue.session != None:
-			seid = cue.session.SEID
+		if cue.stream != None:
+			seid = cue.stream.SEID
 		else:
 			seid = -1
 		cueEl = ET.SubElement(root, "Cue", {"name" : cue.keyword, "seid" : str(seid)})

@@ -80,7 +80,7 @@ class Stream(models.Model):
 
 class Cue(models.Model):
 	keyword = models.CharField(max_length=200)
-	session = models.ForeignKey(Stream, null=True, blank = True)
+	stream = models.ForeignKey(Stream, null=True, blank = True)
 
 	def __unicode__(self):
 		return self.keyword
