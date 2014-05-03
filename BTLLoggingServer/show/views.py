@@ -18,6 +18,8 @@ import json
 import traceback
 from datetime import datetime
 
+import xml.etree.ElementTree as ET
+
 # Create your views here.
 
 @login_required #login_url='/show/login/')#reverse('show.views.user_login'))
@@ -26,9 +28,11 @@ def index(request):
 		#return HttpResponseRedirect('/users/'+request.user.username)
 		return HttpResponseRedirect(reverse('show.views.user', args=(request.user.username,)))
 	#latest_show_list = Show.objects.order_by('-date')[:5]
+	stream_list = Stream.objects.all()
 	template = loader.get_template('index.html')
 	context = RequestContext(request, {
 		#'latest_show_list': latest_show_list,
+		'stream_list' : stream_list,
 	})
 	return HttpResponse(template.render(context))
 
@@ -300,5 +304,27 @@ def postShowQuestionnaire(request):
 		questionnaire_form = PostShowQuestionnaireForm(user = request.user)
 		context["questionnaire"] = questionnaire_form
 		return render(request, 'users/PostQuestionnaire.html', context)
+
+def cues(request):
+	root = ET.Element("CueList")
+	for cue in Cue.objects.all():
+		if cue.session != None:
+			seid = cue.session.SEID
+		else:
+			seid = -1
+		cueEl = ET.SubElement(root, "Cue", {"name" : cue.keyword, "seid" : str(seid)})
+		for action in cue.action_set.all():
+			actionType = action.actionType
+			attrs = {"type" : action.actionType, "order" : str(action.order)}
+			if actionType == "dmx" or actionType == "arduino":
+				attrs["channel"] = str(action.channel)
+				attrs["value"] = str(action.channel)
+			elif actionType == "delay":
+				attrs["value"] = str(action.channel)
+			elif actionType == "osc":
+				attrs["address"] = str(action.address)
+				attrs["message"] = str(action.textValue)
+			actionEl = ET.SubElement(cueEl, "Action", attrs)
+	return HttpResponse(ET.tostring(root))
 
 	

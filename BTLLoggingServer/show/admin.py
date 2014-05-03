@@ -5,3 +5,14 @@ from show.models import *
 admin.site.register(Show)
 admin.site.register(UserProfile)
 admin.site.register(LogItem)
+admin.site.register(Stream)
+
+class ActionInline(admin.TabularInline):
+    model = Action
+
+class CueAdmin(admin.ModelAdmin):
+    inlines = [
+        ActionInline,
+    ]
+
+admin.site.register(Cue, CueAdmin)

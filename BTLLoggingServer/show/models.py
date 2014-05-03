@@ -70,3 +70,46 @@ class LogItem(models.Model):
 	def __unicode__(self):
 		return self.category + ":" + self.content
 
+class Stream(models.Model):
+	name = models.CharField(max_length = 30)
+	SEID = models.IntegerField()
+	type = models.CharField(max_length=20, choices=(("video", "video"), ("chat", "chat")))
+
+	def __unicode__(self):
+		return self.name
+
+class Cue(models.Model):
+	keyword = models.CharField(max_length=200)
+	session = models.ForeignKey(Stream, null=True, blank = True)
+
+	def __unicode__(self):
+		return self.keyword
+
+ACTIONS = (
+		("dmx", "dmx"),
+		("arduino", "arduino"),
+		("delay", "delay"),
+		("osc", "osc"),
+		("ouija", "ouija"),
+	)
+
+class Action(models.Model):
+	cue = models.ForeignKey(Cue)
+	order = models.IntegerField()
+
+	actionType = models.CharField(max_length=20,
+                              choices=ACTIONS)
+	channel = models.IntegerField(blank = True, default = -1)
+	value = models.IntegerField(blank = True, default = -1)
+	address = models.CharField(max_length=200,blank = True)
+	textValue = models.CharField(max_length=200,blank = True)
+
+	class Meta:
+		order_with_respect_to = 'cue'
+
+
+
+
+
+
+

@@ -15,6 +15,9 @@
     <script type="text/javascript">
         $( document ).ready(function() {
           setShowURL("{% url 'show.views.index' %}");
+          {% for stream in stream_list %}
+            {{stream.name}} = {{stream.SEID}};
+          {% endfor %}
         });
     </script>
   </head>
