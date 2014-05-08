@@ -35,6 +35,8 @@ class Phase(models.Model):
 	name = models.CharField(max_length=20)
 	description = models.CharField(max_length=200)
 
+	message = models.CharField(max_length=400)
+
 	active = models.BooleanField(default=False)
 
 	camera_status = models.CharField(max_length=20,

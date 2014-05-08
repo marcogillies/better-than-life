@@ -150,6 +150,7 @@ def user_status(request):
 	status ["mouse_move_status"] = active_phase.mouse_move_status
 	status ["question_lottery_status"] = active_phase.question_lottery_status
 	status ["tommy_cam_status"] = active_phase.tommy_cam_status
+	status ["message"] = active_phase.message
 	#data = serializers.serialize("json", [request.user])
 	return HttpResponse(json.dumps(status), content_type="application/json")
 
