@@ -1,0 +1,9 @@
+
+<h1>{{ phase.name }}</h1>
+
+
+<form id="next_phase_form" method="post" action= "{% url 'show.views.control'  %}">
+    {% csrf_token %}
+
+    <input type="submit" value="next: {{ phase.next_phase }}" name="next" />
+</form>

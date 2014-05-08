@@ -7,6 +7,7 @@ from django.template import RequestContext, loader
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
+from django.contrib.admin.views.decorators import staff_member_required
 
 from registration.backends.simple.views import RegistrationView
 
@@ -132,6 +133,9 @@ def user_login(request):
 
 @login_required #(login_url='/show/login/')
 def user_status(request):
+	phase_list = Phase.objects.filter(active=True)
+	active_phase = phase_list[0]
+	
 	status = {}
 	status ["name"] = request.user.username
 	status ["credit"] = request.user.userprofile.credit
@@ -141,6 +145,11 @@ def user_status(request):
 	status ["group_red"] = request.user.has_perm("show.group_red")
 	status ["group_green"] = request.user.has_perm("show.group_green")
 	status ["group_blue"] = request.user.has_perm("show.group_blue")
+	status ["camera_status"] = active_phase.camera_status
+	status ["chat_status"] = active_phase.chat_status
+	status ["mouse_move_status"] = active_phase.mouse_move_status
+	status ["question_lottery_status"] = active_phase.question_lottery_status
+	status ["tommy_cam_status"] = active_phase.tommy_cam_status
 	#data = serializers.serialize("json", [request.user])
 	return HttpResponse(json.dumps(status), content_type="application/json")
 
@@ -330,4 +339,54 @@ def cues(request):
 			actionEl = ET.SubElement(cueEl, "Action", attrs)
 	return HttpResponse(ET.tostring(root))
 
+@staff_member_required
+def control(request):
+	if request.method == 'POST':
+		phase_list = Phase.objects.filter(active=True)
+		active_phase = phase_list[0]
+		for phase in Phase.objects.all():
+			phase.active = False
+			phase.save()
+		if(active_phase != None and active_phase.next_phase != None):
+			active_phase.next_phase.active = True
+			active_phase.next_phase.save()
+			active_phase = active_phase.next_phase
+		else:
+			Phase.objects.all()[0].active = True
+			Phase.objects.all()[0].save()
+			active_phase = Phase.objects.all()[0]	
+
+		if active_phase.reset_permissions :
+			custom_permission = Permission.objects.get(codename='select_stream')
+			for user in User.objects.all():
+				user.user_permissions.remove(custom_permission)
+			custom_permission = Permission.objects.get(codename='chat')
+			for user in User.objects.all():
+				user.user_permissions.remove(custom_permission)
+
+		if not active_phase.reset_credit is None:
+			for userprofile in UserProfile.objects.all():
+				userprofile.credit = active_phase.reset_credit
+				userprofile.save()
+
+		if active_phase.camera_status == "unlocked":
+			custom_permission = Permission.objects.get(codename='select_stream')
+			for user in User.objects.all():
+				user.user_permissions.add(custom_permission)
+		if active_phase.chat_status == "unlocked":
+			custom_permission = Permission.objects.get(codename='chat')
+			for user in User.objects.all():
+				user.user_permissions.add(custom_permission)
+		return HttpResponseRedirect(reverse('show.views.control'))
+	elif request.method == 'GET':
+		phase_list = Phase.objects.filter(active=True)
+		active_phase = phase_list[0]
+		
+		template = loader.get_template('ControlTemplate.html')
 	
+		context = RequestContext(request, {
+			#'latest_show_list': latest_show_list,
+			'phase' : active_phase,
+		})
+		return HttpResponse(template.render(context))
+

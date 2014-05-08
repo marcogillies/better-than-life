@@ -24,6 +24,42 @@ class Show(models.Model):
 	def __unicode__(self):  # Python 3: def __str__(self):
 		return self.name
 
+FEATURE_STATUSES = (
+		("locked", "locked"),
+		("unlocked", "unlocked"),
+		("buyable", "buyable"),
+	)
+
+class Phase(models.Model):
+
+	name = models.CharField(max_length=20)
+	description = models.CharField(max_length=200)
+
+	active = models.BooleanField(default=False)
+
+	camera_status = models.CharField(max_length=20,
+                              choices=FEATURE_STATUSES,
+                              default="locked")
+	chat_status = models.CharField(max_length=20,
+                              choices=FEATURE_STATUSES,
+                              default="locked")
+	mouse_move_status = models.CharField(max_length=20,
+                              choices=FEATURE_STATUSES,
+                              default="locked")
+	question_lottery_status = models.CharField(max_length=20,
+                              choices=FEATURE_STATUSES,
+                              default="locked")
+	tommy_cam_status = models.CharField(max_length=20,
+                              choices=FEATURE_STATUSES,
+                              default="locked")
+	reset_permissions = models.BooleanField(default=False)
+	reset_credit = models.IntegerField(null=True, blank = True)
+
+	next_phase = models.ForeignKey('self',null=True, blank = True)
+
+	def __unicode__(self):
+		return self.name
+
 
 class UserProfile(models.Model):
 	# This line is required. Links UserProfile to a User model instance.
