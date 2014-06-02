@@ -7,7 +7,7 @@ import java.net.URL;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 
-String urlBase = "http://127.0.0.1:8000/show/averageMouse/";
+String urlBase = "http://127.0.0.1:8000/show/allMouse/";
 URL url;
 HttpURLConnection connection = null;
 
@@ -33,14 +33,18 @@ void draw()
     connection = (HttpURLConnection)url.openConnection();
     connection.setRequestMethod("POST");
     BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-    String text = in.readLine();
-    println(text);
-    String [] coords = split(text, ":"); 
-    println(coords[0] + " " + coords[1]);
-    
-    float x = float(coords[0])*width;
-    float y = float(coords[1])*width;
-    ellipse(x, y, 50, 50);
+    while(true){
+      String text = in.readLine();
+      if(text == null)
+         break;
+      println(text);
+      String [] coords = split(text, ":"); 
+      println(coords[0] + " " + coords[1]);
+      
+      float x = float(coords[0])*width;
+      float y = float(coords[1])*width;
+      ellipse(x, y, 50, 50);
+    }
   } 
   catch(IOException e)
   {

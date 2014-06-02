@@ -266,6 +266,18 @@ def averageMouse(request):
 	return HttpResponse(str(x) + ":" + str(y))
 
 @csrf_exempt
+def allMouse(request):
+	x = 0.0
+	y = 0.0
+	count = 0
+	response = ""
+	for profile in UserProfile.objects.all():
+		x = profile.mouseX
+		y = profile.mouseY
+		response = response + str(x) + ":" + str(y) + "\n"
+	return HttpResponse(response)
+
+@csrf_exempt
 def log(request):
 	if request.method == 'POST':
 		try:
@@ -339,6 +351,14 @@ def cues(request):
 				attrs["message"] = str(action.textValue)
 			actionEl = ET.SubElement(cueEl, "Action", attrs)
 	return HttpResponse(ET.tostring(root))
+
+
+@staff_member_required
+def emailList(request):
+	response = ""
+	for user in User.objects.all():
+		response = response + user.email  + "," + "\n"
+	return HttpResponse(response)
 
 @staff_member_required
 def control(request):

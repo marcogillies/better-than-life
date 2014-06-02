@@ -11,6 +11,7 @@ urlpatterns = patterns('',
     url(r'^show/', include('show.urls'), name='home'),
     url(r'^users/', include('show.user_urls')),
     url(r'^admin/ControlPanel', show.views.control),
+    url(r'^admin/emailList', show.views.emailList),
     url(r'^admin/', include(admin.site.urls)),
     #url(r'^accounts/', include('registration.backends.simple.urls')),
 )
