@@ -27,9 +27,18 @@ Trail currentRecording = null;
 PointDrawer drawer;
 int currentTime = 0;
 
+// the corner points of the projection of
+// the ouija onto the showcaster screen
 PVector [] cornerPoints;
-float a0 = 1.0f;
-float a1 = 1.0f;
+// this is an untransformed point that is used to
+// set the corner point
+PVector untransPoint0 = new PVector();
+// intermediary values for calculating the 
+// inverse projection
+PVector a = new PVector(1,1);
+PVector q01 = new PVector();
+PVector q10 = new PVector();
+
 
 public void setup()
 {
@@ -51,6 +60,15 @@ public void setup()
   cornerPoints[1] = new PVector(100, 0);
   cornerPoints[2] = new PVector(100, 100);
   cornerPoints[3] = new PVector(0, 100);
+
+  normaliseCornerPoints();
+  PVector q11 = PVector.sub(cornerPoints[2], cornerPoints[0]);
+  a = normalisedQuadVector(q11);
+
+  println(cornerPoints);
+  println(a.x + " "  + a.y);
+  println(q01 + " " + q10 + " " + q11);
+  println(PVector.add(PVector.mult(q01,a.x), PVector.mult(q10,a.y)));
   
   //for(int i = 0; i < numPointsSlider.get(); i++)
   //{
@@ -84,14 +102,76 @@ public void setup()
   */
 }
 
+/*
+ * Two bits of linear algebra to calculate the mapping from
+ * the projection of the ouija on the showcaseter screen to 
+ * the Processing screen
+ */
+
+  // get the corner points with the origin set to point 0
+  public void normaliseCornerPoints()
+  {
+    q01 = PVector.sub(cornerPoints[3], cornerPoints[0]);
+    q10 = PVector.sub(cornerPoints[1], cornerPoints[0]);
+  }
+
+ // gets a point on screen in terms of two sides of 
+ // the quad
+ public PVector normalisedQuadVector(PVector v)
+ {
+    //println(cornerPoints);
+
+    //PVector q11 = PVector.sub(cornerPoints[2], cornerPoints[0]);
+    // solution to the linear equations as per 
+    // http://www.geometrictools.com/Documentation/PerspectiveMappings.pdf
+    // q11 = a0*q10 + a1*q01
+    // a1 = (q11.y - a0*q10.y)/q01.y
+    // q11.x = a0*q10.x + q01.x*((q11.y - a0*q10.y)/q01.y)
+    // q11.x = a0*q10.x + q01.x*q11.y/q01.y - a0*q01.x*q10.y/q01.y
+    // a0 = (q11.x + q01.x*q11.y/q01.y)/(q10.x - q01.x*q10.y/q01.y)
+    PVector retVec = new PVector();
+    if(abs(q01.y) < 0.0000001f)
+    {
+      if(abs(q10.y) < 0.0000001f || abs(q01.x) < 0.0000001f ) {
+        retVec.set(0,0);
+      }
+      else {
+        retVec.x = v.y/q10.y;
+        retVec.y = (v.x - retVec.y*q10.x)/q01.x;
+      }
+    } else if(abs(q10.y) < 0.0000001f){
+      if(abs(q01.y) < 0.0000001f || abs(q10.x) < 0.0000001f ) {
+        retVec.set(0,0);
+      }
+      else {
+        retVec.y = v.y/q01.y;
+        retVec.x = (v.x - retVec.y*q01.x)/q10.x;
+      }
+    } else {
+      retVec.x = (v.x - q01.x*v.y/q01.y)/(q10.x - q01.x*q10.y/q01.y);
+      retVec.y = (v.y - retVec.x*q10.y)/q01.y;
+    }
+    //println(retVec.x + " "  + retVec.y);
+    //println(q01 + " " + q10 + " " + v);
+    //println(PVector.add(PVector.mult(q01,retVec.x), PVector.mult(q10,retVec.y)));
+    return retVec;
+ }
+
 // transforms points according to the quadrilateral calibration
 public PVector transformPoint(PVector v)
 {
   //float denom = (a0 + a1 \u2212 1) + (1 \u2212 a1)*v.x + (1 \u2212 a0)*v.y;
-  float denom = (a0 + a1 - 1) + (1 - a1)*v.x + (1 - a0)*v.y;
+  //float denom = (a0 + a1 - 1) + (1 - a1)*v.x + (1 - a0)*v.y;
+  v = normalisedQuadVector(v);
+  float denom = a.x*a.y + a.y*(a.y - 1)*v.x + a.x*(a.x - 1)*v.y;
+  //println(denom);
   PVector ret = new PVector();
-  ret.x = a0*v.x/denom;
-  ret.y = a1*v.y/denom;
+  ret.x = a.y*(a.x + a.y - 1)*v.x/denom;
+  ret.y = a.x*(a.x + a.y - 1)*v.y/denom;
+  //println(ret);
+  ret.x *= width;
+  ret.y *= height;
+  //println(ret);
   return ret;
 }
 
@@ -109,15 +189,20 @@ public void draw()
     String [] xy = split(lines[i], ":");
     if(xy.length >= 2)
     {
-      float x = map(PApplet.parseFloat(xy[0]), 0, 100, 0, width);
-      float y = map(PApplet.parseFloat(xy[1]), 0, 100, 0, width);
+      //float x = map(float(xy[0]), 0, 100, 0, width);
+      //float y = map(float(xy[1]), 0, 100, 0, width);
+      float x = PApplet.parseFloat(xy[0]);
+      float y = PApplet.parseFloat(xy[1]);
+
+      if (i == 0){
+        untransPoint0.set(x,y);
+      }
       PVector v = transformPoint(new PVector(x,y));
-      println(v);
+      //println(v);
       //println(x,y);
       if(i < points.size()) {
         points.get(i).set(v.x, v.y);
-      }
-      else  {
+      } else  {
         points.add(new MousePoint(v.x,v.y));
       }
     }
@@ -239,41 +324,32 @@ public void keyPressed(){
   if (key == '1')
   {
     //drawer = new CircleDrawer();
-    cornerPoints[0].set(points.get(0).p);
+    cornerPoints[0].set(untransPoint0);
   }
   if (key == '2')
   {
     //drawer = new AlphaDrawer();
-    cornerPoints[1].set(points.get(0).p);
+    cornerPoints[1].set(untransPoint0);
   }
   if (key == '3')
   {
     //drawer = new FadeDrawer();
-    cornerPoints[2].set(points.get(0).p);
+    cornerPoints[2].set(untransPoint0);
   }
   if (key == '4')
   {
     //drawer = new MousePointerDrawer();
-    cornerPoints[3].set(points.get(0).p);
+    cornerPoints[3].set(untransPoint0);
   //}
-    println(cornerPoints);
-
-    PVector q01 = PVector.sub(cornerPoints[3], cornerPoints[0]);
+    normaliseCornerPoints();
     PVector q11 = PVector.sub(cornerPoints[2], cornerPoints[0]);
-    PVector q10 = PVector.sub(cornerPoints[1], cornerPoints[0]);
-    // solution to the linear equations as per 
-    // http://www.geometrictools.com/Documentation/PerspectiveMappings.pdf
-    // q11 = a0*q01 + a1*q10
-    // a1 = (q11.y - a0*q01.y)/q10.y
-    // q11.x = a0*q01.x + q10.x*((q11.y - a0*q01.y)/q10.y)
-    // q11.x = a0*q01.x + q10.x*q11.y/q10.y - a0*q10.x*q01.y/q10.y
-    // a0 = (q11.x + q10.x*q11.y/q10.y)/(q01.x - q10.x*q01.y/q10.y)
-    a0 = (q11.x - q10.x*q11.y/q10.y)/(q01.x - q10.x*q01.y/q10.y);
-    a1 = (q11.y - a0*q01.y)/q10.y;
-    println(a0 + " "  + a1);
+    a = normalisedQuadVector(q11);
+
+    println(cornerPoints);
+    println(a.x + " "  + a.y);
     println(q01 + " " + q10 + " " + q11);
-    println(PVector.add(PVector.mult(q01,a0), PVector.mult(q10,a1)));
-}
+    println(PVector.add(PVector.mult(q01,a.x), PVector.mult(q10,a.y)));
+  }
 }
 
 class AlphaDrawer extends PointDrawer
