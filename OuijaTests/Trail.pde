@@ -9,12 +9,12 @@ class Trail
   
   void add(int x, int y)
   {
-    points.add(new Point(x,y));
+    points.add(new MousePoint(x,y));
   }
   
   void draw(int t)
   {
-    Point p = null;
+    MousePoint p = null;
     if(t >= points.size())
     { 
       if(points.size() != 0)

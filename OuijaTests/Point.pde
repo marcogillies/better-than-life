@@ -8,12 +8,14 @@ class MousePoint
   
   MousePoint()
   {
-  //  this(int(random(0, width)), int(random(0, height)));
-  //}
+    this(int(random(0, width)), int(random(0, height)));
+  }
   
-  //MousePoint (int x, int y)
-  //{
-    p = new PVector (int(random(0, width)), int(random(0, height)));
+    MousePoint (float x, float y)
+    {
+     //p = new PVector (int(random(0, width)), int(random(0, height)));
+     p = new PVector (x,y);
+    
     //vel = PVector.random2D();
     vel = new PVector (random(-1,1), random(-1, 1));
     //println(vel.x + " " + vel.y);
@@ -28,6 +30,12 @@ class MousePoint
     }
   }
   
+  void set(float x, float y)
+  {
+    p.x = x;
+    p.y = y;
+  }
+
   void update()
   {
     PVector vChange = new PVector(random(-0.5, 0.5), random(-0.5, 0.5));
