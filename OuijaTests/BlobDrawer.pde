@@ -18,7 +18,7 @@ class BlobDrawer extends PointDrawer
    void draw(MousePoint p)
    {
      pushStyle();
-     fill(255, 255, 255, opacitySlider.get());
+     fill(255, 255, 255, random(0.5,1)*opacitySlider.get());
      noStroke();
      for(PVector offset : p.offsets)
      {

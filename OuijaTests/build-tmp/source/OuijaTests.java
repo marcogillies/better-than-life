@@ -35,19 +35,24 @@ PVector [] cornerPoints;
 PVector untransPoint0 = new PVector();
 // intermediary values for calculating the 
 // inverse projection
-PVector a = new PVector(1,1);
+PVector a = new PVector(1, 1);
 PVector q01 = new PVector();
 PVector q10 = new PVector();
+
+boolean showCallibration = false;
+boolean showGUI = false;
+int calibrationOffset = 10;
 
 
 public void setup()
 {
-  size(400, 400);
+  //size(displayWidth, displayHeight);
+  size(1024, 480);
   frameRate(5);
   drawer = new CircleDrawer();
 
   String [] radioNames = {
-    "circles", "transparent", "fading", "mouse pointer", "triangle", "blob"
+    "circles", "transparent", "fading", "mouse pointer", "triangle", "blob", "twinkle", "twinklefade", "pulse"
   };
   vizSelector = new RadioButtons(radioNames, 10, 5, 100, 15, HORIZONTAL);
   numPointsSlider = new Slider("number of points", 20, 0, 400, 10, 30, 200, 10, HORIZONTAL);
@@ -68,8 +73,8 @@ public void setup()
   println(cornerPoints);
   println(a.x + " "  + a.y);
   println(q01 + " " + q10 + " " + q11);
-  println(PVector.add(PVector.mult(q01,a.x), PVector.mult(q10,a.y)));
-  
+  println(PVector.add(PVector.mult(q01, a.x), PVector.mult(q10, a.y)));
+
   //for(int i = 0; i < numPointsSlider.get(); i++)
   //{
   //  points.add(new MousePoint());
@@ -77,29 +82,29 @@ public void setup()
 
   /*
   BufferedReader reader = createReader("positions.txt");
-  try {
-    while (true)
-    {
-      String line = reader.readLine();
-      Trail newTrail = new Trail();
-      trails.add(newTrail);
-      String[] pieces = split(line, ',');
-      if (pieces == null)
-        break;
-      for (String piece : pieces)
-      {
-        String [] coords = split(piece, ':');
-        if (coords.length >= 2)
-        {
-          println(coords);
-          newTrail.add(int(coords[0]), int(coords[1]));
-        }
-      }
-    }
-  } 
-  catch (IOException e) {
-  }
-  */
+   try {
+   while (true)
+   {
+   String line = reader.readLine();
+   Trail newTrail = new Trail();
+   trails.add(newTrail);
+   String[] pieces = split(line, ',');
+   if (pieces == null)
+   break;
+   for (String piece : pieces)
+   {
+   String [] coords = split(piece, ':');
+   if (coords.length >= 2)
+   {
+   println(coords);
+   newTrail.add(int(coords[0]), int(coords[1]));
+   }
+   }
+   }
+   } 
+   catch (IOException e) {
+   }
+   */
 }
 
 /*
@@ -108,54 +113,56 @@ public void setup()
  * the Processing screen
  */
 
-  // get the corner points with the origin set to point 0
-  public void normaliseCornerPoints()
+// get the corner points with the origin set to point 0
+public void normaliseCornerPoints()
+{
+  q01 = PVector.sub(cornerPoints[3], cornerPoints[0]);
+  q10 = PVector.sub(cornerPoints[1], cornerPoints[0]);
+}
+
+// gets a point on screen in terms of two sides of 
+// the quad
+public PVector normalisedQuadVector(PVector v)
+{
+  //println(cornerPoints);
+
+  //PVector q11 = PVector.sub(cornerPoints[2], cornerPoints[0]);
+  // solution to the linear equations as per 
+  // http://www.geometrictools.com/Documentation/PerspectiveMappings.pdf
+  // q11 = a0*q10 + a1*q01
+  // a1 = (q11.y - a0*q10.y)/q01.y
+  // q11.x = a0*q10.x + q01.x*((q11.y - a0*q10.y)/q01.y)
+  // q11.x = a0*q10.x + q01.x*q11.y/q01.y - a0*q01.x*q10.y/q01.y
+  // a0 = (q11.x + q01.x*q11.y/q01.y)/(q10.x - q01.x*q10.y/q01.y)
+  PVector retVec = new PVector();
+  if (abs(q01.y) < 0.0000001f)
   {
-    q01 = PVector.sub(cornerPoints[3], cornerPoints[0]);
-    q10 = PVector.sub(cornerPoints[1], cornerPoints[0]);
-  }
-
- // gets a point on screen in terms of two sides of 
- // the quad
- public PVector normalisedQuadVector(PVector v)
- {
-    //println(cornerPoints);
-
-    //PVector q11 = PVector.sub(cornerPoints[2], cornerPoints[0]);
-    // solution to the linear equations as per 
-    // http://www.geometrictools.com/Documentation/PerspectiveMappings.pdf
-    // q11 = a0*q10 + a1*q01
-    // a1 = (q11.y - a0*q10.y)/q01.y
-    // q11.x = a0*q10.x + q01.x*((q11.y - a0*q10.y)/q01.y)
-    // q11.x = a0*q10.x + q01.x*q11.y/q01.y - a0*q01.x*q10.y/q01.y
-    // a0 = (q11.x + q01.x*q11.y/q01.y)/(q10.x - q01.x*q10.y/q01.y)
-    PVector retVec = new PVector();
-    if(abs(q01.y) < 0.0000001f)
-    {
-      if(abs(q10.y) < 0.0000001f || abs(q01.x) < 0.0000001f ) {
-        retVec.set(0,0);
-      }
-      else {
-        retVec.x = v.y/q10.y;
-        retVec.y = (v.x - retVec.y*q10.x)/q01.x;
-      }
-    } else if(abs(q10.y) < 0.0000001f){
-      if(abs(q01.y) < 0.0000001f || abs(q10.x) < 0.0000001f ) {
-        retVec.set(0,0);
-      }
-      else {
-        retVec.y = v.y/q01.y;
-        retVec.x = (v.x - retVec.y*q01.x)/q10.x;
-      }
-    } else {
-      retVec.x = (v.x - q01.x*v.y/q01.y)/(q10.x - q01.x*q10.y/q01.y);
-      retVec.y = (v.y - retVec.x*q10.y)/q01.y;
+    if (abs(q10.y) < 0.0000001f || abs(q01.x) < 0.0000001f ) {
+      retVec.set(0, 0);
     }
-    //println(retVec.x + " "  + retVec.y);
-    //println(q01 + " " + q10 + " " + v);
-    //println(PVector.add(PVector.mult(q01,retVec.x), PVector.mult(q10,retVec.y)));
-    return retVec;
- }
+    else {
+      retVec.x = v.y/q10.y;
+      retVec.y = (v.x - retVec.y*q10.x)/q01.x;
+    }
+  } 
+  else if (abs(q10.y) < 0.0000001f) {
+    if (abs(q01.y) < 0.0000001f || abs(q10.x) < 0.0000001f ) {
+      retVec.set(0, 0);
+    }
+    else {
+      retVec.y = v.y/q01.y;
+      retVec.x = (v.x - retVec.y*q01.x)/q10.x;
+    }
+  } 
+  else {
+    retVec.x = (v.x - q01.x*v.y/q01.y)/(q10.x - q01.x*q10.y/q01.y);
+    retVec.y = (v.y - retVec.x*q10.y)/q01.y;
+  }
+  //println(retVec.x + " "  + retVec.y);
+  //println(q01 + " " + q10 + " " + v);
+  //println(PVector.add(PVector.mult(q01,retVec.x), PVector.mult(q10,retVec.y)));
+  return retVec;
+}
 
 // transforms points according to the quadrilateral calibration
 public PVector transformPoint(PVector v)
@@ -175,11 +182,17 @@ public PVector transformPoint(PVector v)
   return ret;
 }
 
+public void drawCross(float x, float y)
+{
+  line(x, y-5, x, y+5);
+  line(x-5, y, x+5, y);
+}
+
 public void draw()
 {
   background(0);
 
-  GetRequest get = new GetRequest("http://127.0.0.1:8000/show/allMouse/");
+  GetRequest get = new GetRequest("http://www.betterthanlife.org.uk/show/allMouse/");
   get.send();
   String content = get.getContent();
   //println("Reponse Content: " + content);
@@ -187,23 +200,24 @@ public void draw()
   for (int i = 0; i < lines.length; i++)
   {
     String [] xy = split(lines[i], ":");
-    if(xy.length >= 2)
+    if (xy.length >= 2)
     {
       //float x = map(float(xy[0]), 0, 100, 0, width);
       //float y = map(float(xy[1]), 0, 100, 0, width);
       float x = PApplet.parseFloat(xy[0]);
       float y = PApplet.parseFloat(xy[1]);
 
-      if (i == 0){
-        untransPoint0.set(x,y);
+      if (i == 0) {
+        untransPoint0.set(x, y);
       }
-      PVector v = transformPoint(new PVector(x,y));
+      PVector v = transformPoint(new PVector(x, y));
       //println(v);
       //println(x,y);
-      if(i < points.size()) {
+      if (i < points.size()) {
         points.get(i).set(v.x, v.y);
-      } else  {
-        points.add(new MousePoint(v.x,v.y));
+      } 
+      else {
+        points.add(new MousePoint(v.x, v.y));
       }
     }
   }
@@ -212,115 +226,164 @@ public void draw()
   {
     point.draw();
   }
-  drawer.drawGUI();
-  vizSelector.display();
-  numPointsSlider.display();
+  if (showGUI)
+  {
+    drawer.drawGUI();
+    vizSelector.display();
+    numPointsSlider.display();
+  }
   currentTime ++;
+
+  if (showCallibration)
+  {
+    //println("drawing cross");
+    pushStyle();
+    stroke(255);
+    strokeWeight(4);
+    drawCross(calibrationOffset, calibrationOffset);
+    drawCross(calibrationOffset, height-calibrationOffset);
+    drawCross(width-calibrationOffset, calibrationOffset);
+    drawCross(width-calibrationOffset, height-calibrationOffset);
+    popStyle();
+  }
 }
 
 public void mousePressed()
 {
-  drawer.mousePressed();
-  numPointsSlider.mousePressed();
+  if (showGUI)
+  {
+    drawer.mousePressed();
+    numPointsSlider.mousePressed();
+  }
 }
 
 public void mouseDragged()
 {
-  drawer.mouseDragged();
-  numPointsSlider.mouseDragged();
+  if (showGUI)
+  {
+    drawer.mouseDragged();
+    numPointsSlider.mouseDragged();
+  }
 }
 
 public void mouseReleased()
 {
-  drawer.mouseReleased();
-  if(numPointsSlider.mouseReleased())
+  if (showGUI)
   {
-    int numPoints = PApplet.parseInt(numPointsSlider.get());
-    if( numPoints > points.size())
+    drawer.mouseReleased();
+    if (numPointsSlider.mouseReleased())
     {
-     //println(numPoints);
-     for(int i = points.size(); i < numPoints; i++)
-     {
-      points.add(new MousePoint());
-    }
-  }
-  if( numPoints < points.size())
-  {
-      //  println(numPoints);
-      for(int i = points.size()-1; i >= numPoints; i--)
+      int numPoints = PApplet.parseInt(numPointsSlider.get());
+      if ( numPoints > points.size())
       {
-        points.remove(i);
+        //println(numPoints);
+        for (int i = points.size(); i < numPoints; i++)
+        {
+          points.add(new MousePoint());
+        }
+      }
+      if ( numPoints < points.size())
+      {
+        //  println(numPoints);
+        for (int i = points.size()-1; i >= numPoints; i--)
+        {
+          points.remove(i);
+        }
       }
     }
-  }
-  if (vizSelector.mouseReleased())
-  {
-    String name = vizSelector.get();
-    //println(name);
-    if (name == "circles")
+    if (vizSelector.mouseReleased())
     {
-      drawer = new CircleDrawer();
-    }
-    if (name == "transparent")
-    {
-      drawer = new AlphaDrawer();
-    }
-    if (name == "fading")
-    {
-      drawer = new FadeDrawer();
-    }
-    if (name == "mouse pointer")
-    {
-      drawer = new MousePointerDrawer();
-    }
-    if (name == "triangle")
-    {
-      drawer = new TriangleDrawer();
-    }
-    if (name == "blob")
-    {
-      drawer = new BlobDrawer();
+      String name = vizSelector.get();
+      //println(name);
+      if (name == "circles")
+      {
+        drawer = new CircleDrawer();
+      }
+      if (name == "transparent")
+      {
+        drawer = new AlphaDrawer();
+      }
+      if (name == "fading")
+      {
+        drawer = new FadeDrawer();
+      }
+      if (name == "mouse pointer")
+      {
+        drawer = new MousePointerDrawer();
+      }
+      if (name == "triangle")
+      {
+        drawer = new TriangleDrawer();
+      }
+      if (name == "blob")
+      {
+        drawer = new BlobDrawer();
+      }
+      if (name == "twinkle")
+      {
+        drawer = new TwinkleDrawer();
+      }
+      if (name == "twinklefade")
+      {
+        drawer = new TwinkleFadeDrawer();
+      }
+      if (name == "pulse")
+      {
+        drawer = new PulseDrawer();
+      }
     }
   }
 }
 
-public void keyPressed(){
+public void keyPressed() {
 
-//  if ( key == 'r')
-//  {
-//    if (currentRecording == null)
-//    {
-//      currentRecording = new Trail();
-//      trails.add(currentRecording);
-//      currentTime = 0;
-//    }
-//    else
-//    {
-//      currentRecording = null;
-//      currentTime = 0;
-//    }
-//  }
-//  if (key == 'p')
-//  {
-//    currentTime = 0;
-//  }
-//  if (key == 's')
-//  {
-//    PrintWriter output = createWriter("positions.txt"); 
-//    for (Trail trail : trails)
-//    {
-//      for (Point point : trail.points)
-//      {
-//        output.print(str(point.p.x)+":"+str(point.p.y)+",");
-//      }
-//      output.println("");
-//    }
-//    output.close();
-//  }
-//  if (key == 'c')
-//  {
-//    trails = new ArrayList<Trail>();
-//  }
+  //  if ( key == 'r')
+  //  {
+  //    if (currentRecording == null)
+  //    {
+  //      currentRecording = new Trail();
+  //      trails.add(currentRecording);
+  //      currentTime = 0;
+  //    }
+  //    else
+  //    {
+  //      currentRecording = null;
+  //      currentTime = 0;
+  //    }
+  //  }
+  //  if (key == 'p')
+  //  {
+  //    currentTime = 0;
+  //  }
+  //  if (key == 's')
+  //  {
+  //    PrintWriter output = createWriter("positions.txt"); 
+  //    for (Trail trail : trails)
+  //    {
+  //      for (Point point : trail.points)
+  //      {
+  //        output.print(str(point.p.x)+":"+str(point.p.y)+",");
+  //      }
+  //      output.println("");
+  //    }
+  //    output.close();
+  //  }
+  //  if (key == 'c')
+  //  {
+  //    trails = new ArrayList<Trail>();
+  //  }
+
+  if (key == 'c')
+  {
+    showCallibration = !showCallibration;
+  }
+  
+  
+  if (key == 'g')
+  {
+    showGUI = !showGUI;
+  }
+
   if (key == '1')
   {
     //drawer = new CircleDrawer();
@@ -340,7 +403,7 @@ public void keyPressed(){
   {
     //drawer = new MousePointerDrawer();
     cornerPoints[3].set(untransPoint0);
-  //}
+
     normaliseCornerPoints();
     PVector q11 = PVector.sub(cornerPoints[2], cornerPoints[0]);
     a = normalisedQuadVector(q11);
@@ -348,7 +411,7 @@ public void keyPressed(){
     println(cornerPoints);
     println(a.x + " "  + a.y);
     println(q01 + " " + q10 + " " + q11);
-    println(PVector.add(PVector.mult(q01,a.x), PVector.mult(q10,a.y)));
+    println(PVector.add(PVector.mult(q01, a.x), PVector.mult(q10, a.y)));
   }
 }
 
@@ -416,7 +479,7 @@ class BlobDrawer extends PointDrawer
    public void draw(MousePoint p)
    {
      pushStyle();
-     fill(255, 255, 255, opacitySlider.get());
+     fill(255, 255, 255, random(0.5f,1)*opacitySlider.get());
      noStroke();
      for(PVector offset : p.offsets)
      {
@@ -1251,6 +1314,70 @@ class PointDrawer
   }
 }
 
+class PulseDrawer extends PointDrawer
+{
+   Slider sizeSlider;
+   Slider opacitySlider;
+   Slider frequencySlider;
+   Slider opacityAmplitudeSlider;
+   Slider sizeAmplitudeSlider;
+  
+   PulseDrawer()
+   {
+     sizeSlider = new Slider("size", 20, 0, 50, 10, 50, 200, 10, HORIZONTAL);
+     opacitySlider = new Slider("opacity", 10, 0, 255, 10, 70, 200, 10, HORIZONTAL);
+     frequencySlider = new Slider("speed", 0.5f, 0, 5, 10, 90, 200, 10, HORIZONTAL);
+     opacityAmplitudeSlider = new Slider("speed", 0.5f, 0, 5, 10, 110, 200, 10, HORIZONTAL);
+     sizeAmplitudeSlider = new Slider("speed", 0.5f, 0, 5, 10, 130, 200, 10, HORIZONTAL);
+   }
+  
+   public void drawGUI()
+   {
+     sizeSlider.display();
+     opacitySlider.display();
+     frequencySlider.display();
+     opacityAmplitudeSlider.display();
+     sizeAmplitudeSlider.display();
+   }
+  
+   public void draw(MousePoint p)
+   {
+     float s = sin(frequencySlider.get()*radians(360)*millis()/1000.0f);
+     pushStyle();
+     fill(255, 255, 255, (1.0f+opacityAmplitudeSlider.get()*s)*opacitySlider.get());
+     noStroke();
+     for(int i = 0; i < (1.0f+sizeAmplitudeSlider.get()*s)*sizeSlider.get(); i++)
+       ellipse(p.p.x, p.p.y, i, i);
+     popStyle();
+   } 
+   
+   public void mousePressed()
+   {
+     sizeSlider.mousePressed();
+     opacitySlider.mousePressed();
+     frequencySlider.mousePressed();
+     opacityAmplitudeSlider.mousePressed();
+     sizeAmplitudeSlider.mousePressed();
+   }
+   
+   public void mouseDragged()
+   {
+     sizeSlider.mouseDragged();
+     opacitySlider.mouseDragged();
+     frequencySlider.mouseDragged();
+     opacityAmplitudeSlider.mouseDragged();
+     sizeAmplitudeSlider.mouseDragged();
+   }
+   
+   public void mouseReleased()
+   {
+     sizeSlider.mouseReleased();
+     opacitySlider.mouseReleased();
+     frequencySlider.mouseReleased();
+     opacityAmplitudeSlider.mouseReleased();
+     sizeAmplitudeSlider.mouseReleased();
+   }
+}
 class Trail
 {
   ArrayList <MousePoint> points;
@@ -1328,6 +1455,89 @@ class TriangleDrawer extends PointDrawer
    public void mouseReleased()
    {
      sizeSlider.mouseReleased();
+   }
+}
+class TwinkleDrawer extends PointDrawer
+{
+   Slider sizeSlider;
+  
+   TwinkleDrawer()
+   {
+     sizeSlider = new Slider("size", 5, 0, 50, 10, 50, 200, 10, HORIZONTAL);
+   }
+  
+   public void drawGUI()
+   {
+     sizeSlider.display();
+   }
+  
+   public void draw(MousePoint p)
+   {
+     pushStyle();
+     fill(255, 255, 255, random(100,255));
+     noStroke();
+     ellipse(p.p.x, p.p.y, sizeSlider.get(), sizeSlider.get());
+     popStyle();
+   } 
+   
+   public void mousePressed()
+   {
+     sizeSlider.mousePressed();
+   }
+   
+   public void mouseDragged()
+   {
+     sizeSlider.mouseDragged();
+   }
+   
+   public void mouseReleased()
+   {
+     sizeSlider.mouseReleased();
+   }
+}
+class TwinkleFadeDrawer extends PointDrawer
+{
+   Slider sizeSlider;
+   Slider opacitySlider;
+  
+   TwinkleFadeDrawer()
+   {
+     sizeSlider = new Slider("size", 20, 0, 50, 10, 50, 200, 10, HORIZONTAL);
+     opacitySlider = new Slider("opacity", 10, 0, 255, 10, 70, 200, 10, HORIZONTAL);
+   }
+  
+   public void drawGUI()
+   {
+     sizeSlider.display();
+     opacitySlider.display();
+   }
+  
+   public void draw(MousePoint p)
+   {
+     pushStyle();
+     fill(255, 255, 255, random(0.4f, 1.0f)*opacitySlider.get());
+     noStroke();
+     for(int i = 0; i < sizeSlider.get(); i++)
+       ellipse(p.p.x, p.p.y, i, i);
+     popStyle();
+   } 
+   
+   public void mousePressed()
+   {
+     sizeSlider.mousePressed();
+     opacitySlider.mousePressed();
+   }
+   
+   public void mouseDragged()
+   {
+     sizeSlider.mouseDragged();
+     opacitySlider.mouseDragged();
+   }
+   
+   public void mouseReleased()
+   {
+     sizeSlider.mouseReleased();
+     opacitySlider.mouseReleased();
    }
 }
   static public void main(String[] passedArgs) {
