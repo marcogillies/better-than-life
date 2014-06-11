@@ -45,6 +45,7 @@ void setup()
 
   cornerPoints = new PVector [4];
   reset();
+  loadCalibration();
 
 
   //for(int i = 0; i < numPointsSlider.get(); i++)
@@ -105,6 +106,43 @@ void calibrate()
     println(v1);
   }
 }
+
+
+void loadCalibration()
+{
+   BufferedReader reader = createReader("calibration.txt");
+   if(reader != null)
+   {
+     PVector [] tempCornerPoints = new PVector[4];
+     for (int i = 0; i < tempCornerPoints.length; i++)
+     {
+       try {
+          String line = reader.readLine();
+          String[] pieces = split(line, ',');
+          float x = float(pieces[0]);
+          float y = float(pieces[1]);
+          tempCornerPoints[i] = new PVector(x, y);
+       } catch (IOException e) {
+          e.printStackTrace();
+          return;
+        }
+     }
+     cornerPoints = tempCornerPoints;
+     calibrate();
+   }
+}
+
+void saveCalibration()
+{
+   PrintWriter output = createWriter("calibration.txt");
+   for (int i = 0; i < cornerPoints.length; i++)
+   {
+     output.println(cornerPoints[i].x + ", " + cornerPoints[i].y);
+   }
+   output.flush();
+   output.close();
+}
+
 
 /*
  * Two bits of linear algebra to calculate the mapping from
@@ -430,6 +468,8 @@ void keyPressed() {
     //a = normalisedQuadVector(q11);
 
     calibrate();
+
+    saveCalibration();
 
     //println(cornerPoints);
     //println(a.x + " "  + a.y);
